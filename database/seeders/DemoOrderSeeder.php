@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Seeder;
 
 class DemoOrderSeeder extends Seeder
@@ -102,6 +103,40 @@ class DemoOrderSeeder extends Seeder
 
                 $line['product']->decrement('stock', $line['quantity']);
             }
+
+            $this->seedTimeline($order, $definition['status'], $definition['placed_at'], $customer);
+        }
+    }
+
+    /**
+     * Give demo orders a realistic status history for the timeline UI.
+     */
+    private function seedTimeline(Order $order, OrderStatus $status, CarbonInterface $placedAt, User $customer): void
+    {
+        $admin = User::where('email', 'admin@farmersmarket.test')->first();
+
+        $events = [
+            [OrderStatus::Pending, $customer, 'Order placed and stock reserved.', $placedAt],
+        ];
+
+        if ($status !== OrderStatus::Pending) {
+            $events[] = [OrderStatus::Confirmed, $admin, 'Order confirmed and queued for packing.', $placedAt->copy()->addHours(3)];
+        }
+
+        if ($status === OrderStatus::Delivered) {
+            $events[] = [OrderStatus::Delivered, $admin, 'Order marked as delivered.', $placedAt->copy()->addDay()];
+        }
+
+        foreach ($events as [$eventStatus, $actor, $note, $at]) {
+            $history = $order->histories()->make([
+                'status' => $eventStatus,
+                'actor_id' => $actor?->id,
+                'note' => $note,
+            ]);
+
+            $history->created_at = $at;
+            $history->updated_at = $at;
+            $history->save();
         }
     }
 }

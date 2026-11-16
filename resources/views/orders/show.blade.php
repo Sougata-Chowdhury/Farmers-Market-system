@@ -66,6 +66,13 @@
 
             <aside class="space-y-4">
                 <div class="card p-5">
+                    <h2 class="font-display text-lg font-semibold text-slate-900">Order timeline</h2>
+                    <div class="mt-4">
+                        <x-order-timeline :order="$order" />
+                    </div>
+                </div>
+
+                <div class="card p-5">
                     <h2 class="font-display text-lg font-semibold text-slate-900">Delivery</h2>
                     <dl class="mt-3 space-y-2 text-sm">
                         <div>

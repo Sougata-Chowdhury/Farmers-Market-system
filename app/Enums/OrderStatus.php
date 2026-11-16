@@ -28,6 +28,32 @@ enum OrderStatus: string
     }
 
     /**
+     * Friendly label for the order timeline.
+     */
+    public function timelineLabel(): string
+    {
+        return match ($this) {
+            self::Pending => 'Order placed',
+            self::Confirmed => 'Order confirmed',
+            self::Delivered => 'Order delivered',
+            self::Cancelled => 'Order cancelled',
+        };
+    }
+
+    /**
+     * Dot colour used by the order timeline.
+     */
+    public function dotClasses(): string
+    {
+        return match ($this) {
+            self::Pending => 'bg-amber-500 ring-amber-100',
+            self::Confirmed => 'bg-sky-500 ring-sky-100',
+            self::Delivered => 'bg-emerald-500 ring-emerald-100',
+            self::Cancelled => 'bg-rose-500 ring-rose-100',
+        };
+    }
+
+    /**
      * Statuses an admin can move an order to.
      *
      * @return array<int, self>

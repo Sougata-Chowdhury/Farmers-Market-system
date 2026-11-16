@@ -85,6 +85,8 @@ class CheckoutService
                 'placed_at' => now(),
             ]);
 
+            $order->recordHistory(OrderStatus::Pending, $user, 'Order placed and stock reserved.');
+
             foreach ($lines as $line) {
                 $order->items()->create([
                     'product_id' => $line['product']->id,
@@ -110,24 +112,67 @@ class CheckoutService
     public function cancel(Order $order, User $actor): void
     {
         DB::transaction(function () use ($order, $actor): void {
-            $order = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
-            abort_unless($this->canCancel($order, $actor), 403);
+            $this->cancelLocked($locked, $actor);
+        });
+    }
 
-            if (! in_array($order->status, [OrderStatus::Pending, OrderStatus::Confirmed], true)) {
+    /**
+     * Move an order forward and record the change on its timeline.
+     */
+    public function updateStatus(Order $order, OrderStatus $target, User $actor): void
+    {
+        DB::transaction(function () use ($order, $target, $actor): void {
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($target === $locked->status) {
                 throw ValidationException::withMessages([
-                    'order' => 'This order can no longer be cancelled.',
+                    'status' => 'Order already has that status.',
                 ]);
             }
 
-            foreach ($order->items as $item) {
-                Product::withTrashed()
-                    ->whereKey($item->product_id)
-                    ->increment('stock', $item->quantity);
+            if ($target === OrderStatus::Cancelled) {
+                $this->cancelLocked($locked, $actor);
+
+                return;
             }
 
-            $order->update(['status' => OrderStatus::Cancelled]);
+            if (! in_array($target, $locked->status->allowedTransitions(), true)) {
+                throw ValidationException::withMessages([
+                    'status' => "Cannot move an order from {$locked->status->label()} to {$target->label()}.",
+                ]);
+            }
+
+            $locked->update(['status' => $target]);
+
+            $locked->recordHistory($target, $actor, match ($target) {
+                OrderStatus::Confirmed => 'Order confirmed and queued for packing.',
+                OrderStatus::Delivered => 'Order marked as delivered.',
+                default => null,
+            });
         });
+    }
+
+    private function cancelLocked(Order $order, User $actor): void
+    {
+        abort_unless($this->canCancel($order, $actor), 403);
+
+        if (! in_array($order->status, [OrderStatus::Pending, OrderStatus::Confirmed], true)) {
+            throw ValidationException::withMessages([
+                'order' => 'This order can no longer be cancelled.',
+            ]);
+        }
+
+        foreach ($order->items as $item) {
+            Product::withTrashed()
+                ->whereKey($item->product_id)
+                ->increment('stock', $item->quantity);
+        }
+
+        $order->update(['status' => OrderStatus::Cancelled]);
+
+        $order->recordHistory(OrderStatus::Cancelled, $actor, 'Order cancelled and stock returned to farmers.');
     }
 
     public function canCancel(Order $order, User $actor): bool

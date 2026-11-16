@@ -9,7 +9,6 @@ use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -47,7 +46,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        $order->load(['items.farmer:id,name', 'user']);
+        $order->load(['items.farmer:id,name', 'user', 'histories.actor:id,name,role']);
 
         return view('admin.orders.show', ['order' => $order]);
     }
@@ -66,20 +65,10 @@ class OrderController extends Controller
             return back()->with('status', 'Order already has that status.');
         }
 
-        if ($target === OrderStatus::Cancelled) {
-            $this->checkout->cancel($order, $request->user());
+        $this->checkout->updateStatus($order, $target, $request->user());
 
-            return back()->with('status', "Order #{$order->id} cancelled and stock restored.");
-        }
-
-        if (! in_array($target, $order->status->allowedTransitions(), true)) {
-            throw ValidationException::withMessages([
-                'status' => "Cannot move an order from {$order->status->label()} to {$target->label()}.",
-            ]);
-        }
-
-        $order->update(['status' => $target]);
-
-        return back()->with('status', "Order #{$order->id} marked as {$target->label()}.");
+        return back()->with('status', $target === OrderStatus::Cancelled
+            ? "Order #{$order->id} cancelled and stock restored."
+            : "Order #{$order->id} marked as {$target->label()}.");
     }
 }

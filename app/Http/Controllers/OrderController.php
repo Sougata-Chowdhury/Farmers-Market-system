@@ -41,7 +41,7 @@ class OrderController extends Controller
             403
         );
 
-        $order->load(['items.farmer:id,name', 'user:id,name,email,phone']);
+        $order->load(['items.farmer:id,name', 'user:id,name,email,phone', 'histories.actor:id,name,role']);
 
         return view('orders.show', ['order' => $order]);
     }

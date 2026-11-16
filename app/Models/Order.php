@@ -47,6 +47,23 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function histories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class)->oldest('created_at')->oldest('id');
+    }
+
+    /**
+     * Record a status change for the order timeline.
+     */
+    public function recordHistory(OrderStatus $status, ?User $actor = null, ?string $note = null): OrderStatusHistory
+    {
+        return $this->histories()->create([
+            'status' => $status,
+            'actor_id' => $actor?->id,
+            'note' => $note,
+        ]);
+    }
+
     public function scopeForCustomer(Builder $query, User $user): Builder
     {
         return $query->where('user_id', $user->id);
