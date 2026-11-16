@@ -11,13 +11,17 @@
                 <p class="mt-1 text-sm text-slate-500">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
             </div>
 
-            @can('cancel', $order)
-                <form method="POST" action="{{ route('orders.cancel', $order) }}"
-                      onsubmit="return confirm('Cancel this order and release the stock?');">
-                    @csrf
-                    <button type="submit" class="btn-danger">Cancel order</button>
-                </form>
-            @endcan
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('orders.invoice', $order) }}" class="btn-secondary">Download invoice</a>
+
+                @can('cancel', $order)
+                    <form method="POST" action="{{ route('orders.cancel', $order) }}"
+                          onsubmit="return confirm('Cancel this order and release the stock?');">
+                        @csrf
+                        <button type="submit" class="btn-danger">Cancel order</button>
+                    </form>
+                @endcan
+            </div>
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">

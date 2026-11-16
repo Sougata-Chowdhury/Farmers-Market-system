@@ -7,7 +7,10 @@
                 <h1 class="font-display text-3xl font-medium tracking-tight text-slate-900">Order #{{ $order->id }}</h1>
                 <x-status-badge :status="$order->status" />
             </div>
-            <p class="text-sm text-slate-500">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
+            <div class="flex items-center gap-3">
+                <p class="text-sm text-slate-500">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
+                <a href="{{ route('orders.invoice', $order) }}" class="btn-secondary">Invoice PDF</a>
+            </div>
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">

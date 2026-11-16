@@ -14,6 +14,7 @@ use App\Http\Controllers\Farmer\ProductController as FarmerProductController;
 use App\Http\Controllers\Farmer\ProfileController as FarmerProfileController;
 use App\Http\Controllers\FarmerStorefrontController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -31,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/orders/{order}/invoice', [InvoiceController::class, 'show'])->name('orders.invoice');
 
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
