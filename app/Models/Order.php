@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\OrderStatus;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Order extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'status',
+        'delivery_name',
+        'delivery_phone',
+        'delivery_address',
+        'notes',
+        'subtotal',
+        'platform_fee',
+        'total',
+        'placed_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => OrderStatus::class,
+            'subtotal' => 'decimal:2',
+            'platform_fee' => 'decimal:2',
+            'total' => 'decimal:2',
+            'placed_at' => 'datetime',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function scopeForCustomer(Builder $query, User $user): Builder
+    {
+        return $query->where('user_id', $user->id);
+    }
+
+    public function scopeForFarmer(Builder $query, User $farmer): Builder
+    {
+        return $query->whereHas('items', fn (Builder $query) => $query->where('farmer_id', $farmer->id));
+    }
+
+    public function scopeWithStatus(Builder $query, ?string $status): Builder
+    {
+        if (blank($status)) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
+    }
+
+    public function isCancellableBy(User $user): bool
+    {
+        return $this->user_id === $user->id
+            && in_array($this->status, [OrderStatus::Pending, OrderStatus::Confirmed], true);
+    }
+}
