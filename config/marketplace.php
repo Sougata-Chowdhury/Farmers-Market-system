@@ -13,6 +13,8 @@ return [
 
     'platform_fee' => (float) env('MARKETPLACE_FEE', 0.05),
 
+    'low_stock_threshold' => (int) env('LOW_STOCK_THRESHOLD', 5),
+
     'currency' => [
         'code' => 'BDT',
         'symbol' => '৳',

@@ -4,12 +4,19 @@ namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Enums\UserRole;
+use App\Mail\OrderPlaced;
+use App\Mail\OrderPlacedForFarmer;
+use App\Mail\OrderStatusChanged;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Notifications\NewSaleNotification;
+use App\Notifications\OrderPlacedNotification;
+use App\Notifications\OrderStatusChangedNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutService
@@ -24,7 +31,7 @@ class CheckoutService
      */
     public function placeOrder(User $user, array $delivery): Order
     {
-        return DB::transaction(function () use ($user, $delivery): Order {
+        $order = DB::transaction(function () use ($user, $delivery): Order {
             /** @var Collection<int, Cart> $carts */
             $carts = $user->carts()->lockForUpdate()->get();
 
@@ -104,6 +111,48 @@ class CheckoutService
 
             return $order->load('items');
         });
+
+        $this->notifyOrderPlaced($order);
+
+        return $order;
+    }
+
+    /**
+     * Send the receipt to the customer and a sale alert to every farmer.
+     */
+    private function notifyOrderPlaced(Order $order): void
+    {
+        $order->loadMissing(['items.farmer', 'user']);
+
+        try {
+            Mail::to($order->user)->queue(new OrderPlaced($order));
+            $order->user->notify(new OrderPlacedNotification($order));
+
+            foreach ($order->items->groupBy('farmer_id') as $items) {
+                $farmer = $items->first()->farmer;
+
+                if ($farmer === null) {
+                    continue;
+                }
+
+                Mail::to($farmer)->queue(new OrderPlacedForFarmer($order, $farmer, $items));
+                $farmer->notify(new NewSaleNotification($order, $farmer, $items));
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+    }
+
+    private function notifyStatusChanged(Order $order, OrderStatus $status): void
+    {
+        $order->loadMissing('user');
+
+        try {
+            Mail::to($order->user)->queue(new OrderStatusChanged($order, $status));
+            $order->user->notify(new OrderStatusChangedNotification($order, $status));
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 
     /**
@@ -111,11 +160,15 @@ class CheckoutService
      */
     public function cancel(Order $order, User $actor): void
     {
-        DB::transaction(function () use ($order, $actor): void {
+        $updated = DB::transaction(function () use ($order, $actor): Order {
             $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
             $this->cancelLocked($locked, $actor);
+
+            return $locked->fresh();
         });
+
+        $this->notifyStatusChanged($updated, OrderStatus::Cancelled);
     }
 
     /**
@@ -123,7 +176,7 @@ class CheckoutService
      */
     public function updateStatus(Order $order, OrderStatus $target, User $actor): void
     {
-        DB::transaction(function () use ($order, $target, $actor): void {
+        $updated = DB::transaction(function () use ($order, $target, $actor): Order {
             $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
             if ($target === $locked->status) {
@@ -135,7 +188,7 @@ class CheckoutService
             if ($target === OrderStatus::Cancelled) {
                 $this->cancelLocked($locked, $actor);
 
-                return;
+                return $locked->fresh();
             }
 
             if (! in_array($target, $locked->status->allowedTransitions(), true)) {
@@ -151,7 +204,11 @@ class CheckoutService
                 OrderStatus::Delivered => 'Order marked as delivered.',
                 default => null,
             });
+
+            return $locked;
         });
+
+        $this->notifyStatusChanged($updated, $target);
     }
 
     private function cancelLocked(Order $order, User $actor): void

@@ -22,7 +22,7 @@ class DashboardController extends Controller
             'units_sold' => (int) (clone $sales)->sum('quantity'),
             'orders' => (clone $sales)->distinct()->count('order_id'),
             'active_products' => $user->products()->count(),
-            'low_stock' => $user->products()->where('stock', '<=', 5)->count(),
+            'low_stock' => $user->products()->where('is_active', true)->where('stock', '<=', config('marketplace.low_stock_threshold'))->count(),
         ];
 
         $recentSales = (clone $sales)
