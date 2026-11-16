@@ -102,7 +102,7 @@
                         @endif
 
                         @if ($navUser->isFarmer())
-                            <x-dropdown-link :href="route('farmer.profile.edit')">Payout details</x-dropdown-link>
+                            <x-dropdown-link :href="route('farmer.profile.edit')">Storefront &amp; payouts</x-dropdown-link>
                         @endif
 
                         <form method="POST" action="{{ route('logout') }}">

@@ -15,7 +15,13 @@
     <div class="flex flex-1 flex-col gap-3 p-4">
         <div class="flex items-center justify-between gap-2 text-xs">
             <span class="rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">{{ $product->category?->name }}</span>
-            <span class="truncate text-slate-500">{{ $product->farmer?->name }}</span>
+            @if ($product->farmer?->slug)
+                <a href="{{ route('farmers.show', $product->farmer) }}"
+                   class="truncate text-slate-500 transition hover:text-emerald-700"
+                   title="Visit {{ $product->farmer->name }}'s storefront">{{ $product->farmer->name }}</a>
+            @else
+                <span class="truncate text-slate-500">{{ $product->farmer?->name }}</span>
+            @endif
         </div>
 
         <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">

@@ -14,7 +14,8 @@ class ProductController extends Controller
 
         $product->load([
             'category:id,name,slug',
-            'farmer:id,name,address',
+            'farmer:id,name,slug,address',
+            'farmer.farmerProfile',
             'reviews' => fn ($query) => $query->with('user:id,name')->latest(),
         ]);
 
@@ -22,6 +23,7 @@ class ProductController extends Controller
             ->active()
             ->where('category_id', $product->category_id)
             ->whereKeyNot($product->id)
+            ->with('farmer:id,name,slug')
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->inRandomOrder()

@@ -17,6 +17,9 @@ class BankDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'farm_name' => ['nullable', 'string', 'max:120'],
+            'location' => ['nullable', 'string', 'max:120'],
+            'bio' => ['nullable', 'string', 'max:600'],
             'bank_name' => ['required', 'string', 'max:120'],
             'branch' => ['required', 'string', 'max:120'],
             'account_no' => ['required', 'string', 'max:60'],

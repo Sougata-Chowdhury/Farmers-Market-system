@@ -12,6 +12,7 @@ use App\Http\Controllers\Farmer\DashboardController as FarmerDashboardController
 use App\Http\Controllers\Farmer\OrderController as FarmerOrderController;
 use App\Http\Controllers\Farmer\ProductController as FarmerProductController;
 use App\Http\Controllers\Farmer\ProfileController as FarmerProfileController;
+use App\Http\Controllers\FarmerStorefrontController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/farmers/{farmer:slug}', [FarmerStorefrontController::class, 'show'])->name('farmers.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');

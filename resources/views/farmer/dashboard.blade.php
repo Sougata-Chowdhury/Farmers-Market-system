@@ -3,6 +3,9 @@
         <x-page-header :title="'Welcome back, '.auth()->user()->name" subtitle="Live numbers from your storefront — updated as customers order.">
             <a href="{{ route('farmer.products.create') }}" class="btn-primary">Add product</a>
             <a href="{{ route('farmer.orders.index') }}" class="btn-secondary">View sales</a>
+            @if (auth()->user()->slug)
+                <a href="{{ route('farmers.show', auth()->user()) }}" class="btn-secondary" target="_blank" rel="noopener">View storefront</a>
+            @endif
         </x-page-header>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

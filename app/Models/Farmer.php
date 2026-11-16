@@ -13,6 +13,9 @@ class Farmer extends Model
 
     protected $fillable = [
         'user_id',
+        'farm_name',
+        'location',
+        'bio',
         'bank_name',
         'branch',
         'account_no',

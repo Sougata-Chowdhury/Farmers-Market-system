@@ -46,10 +46,26 @@
 
                 <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Sold by</p>
-                    <p class="mt-1 text-sm font-semibold text-slate-900">{{ $product->farmer->name }}</p>
-                    @if ($product->farmer->address)
-                        <p class="text-sm text-slate-500">{{ $product->farmer->address }}</p>
-                    @endif
+                    <div class="mt-2 flex items-center justify-between gap-3">
+                        <div class="flex min-w-0 items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-600 text-sm font-bold text-white">
+                                {{ $product->farmer->initials }}
+                            </span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-slate-900">{{ $product->farmer->storefront_name }}</p>
+                                @if ($product->farmer->address)
+                                    <p class="truncate text-xs text-slate-500">{{ $product->farmer->address }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        @if ($product->farmer->slug)
+                            <a href="{{ route('farmers.show', $product->farmer) }}"
+                               class="shrink-0 text-sm font-semibold text-emerald-700 hover:underline">
+                                Visit storefront
+                            </a>
+                        @endif
+                    </div>
                 </div>
 
                 @if ($product->description)

@@ -21,6 +21,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'slug',
         'email',
         'phone',
         'role',
@@ -48,6 +49,34 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (User $user): void {
+            if ($user->isFarmer() && blank($user->slug)) {
+                $user->slug = static::uniqueSlug($user->name);
+            }
+        });
+    }
+
+    public static function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name) ?: 'farmer';
+        $slug = $base;
+        $suffix = 2;
+
+        while (
+            static::query()
+                ->where('slug', $slug)
+                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+                ->exists()
+        ) {
+            $slug = "{$base}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
     public function getInitialsAttribute(): string
     {
         return Str::of($this->name)
@@ -56,6 +85,38 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn (string $part): string => Str::upper(Str::substr($part, 0, 1)))
             ->implode('');
+    }
+
+    /**
+     * The name shown on a farmer's public storefront.
+     */
+    public function getStorefrontNameAttribute(): string
+    {
+        return $this->farmerProfile?->farm_name ?: $this->name;
+    }
+
+    public function getStorefrontUrlAttribute(): ?string
+    {
+        return $this->isFarmer() && filled($this->slug)
+            ? route('farmers.show', $this)
+            : null;
+    }
+
+    /**
+     * Average rating across every review left on this farmer's products.
+     */
+    public function farmerRating(): float
+    {
+        return round((float) Review::query()
+            ->whereHas('product', fn ($query) => $query->where('farmer_id', $this->id))
+            ->avg('rating'), 1);
+    }
+
+    public function farmerReviewsCount(): int
+    {
+        return Review::query()
+            ->whereHas('product', fn ($query) => $query->where('farmer_id', $this->id))
+            ->count();
     }
 
     public function farmerProfile(): HasOne

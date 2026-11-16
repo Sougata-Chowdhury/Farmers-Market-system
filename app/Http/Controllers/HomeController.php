@@ -21,7 +21,7 @@ class HomeController extends Controller
 
         $products = Product::query()
             ->active()
-            ->with(['category:id,name,slug', 'farmer:id,name'])
+            ->with(['category:id,name,slug', 'farmer:id,name,slug'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->search($filters['q'] ?? null)
