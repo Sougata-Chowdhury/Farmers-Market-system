@@ -9,6 +9,7 @@ use App\Mail\OrderPlaced;
 use App\Mail\OrderPlacedForFarmer;
 use App\Mail\OrderStatusChanged;
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -35,8 +36,9 @@ class CheckoutService
         array $delivery,
         PaymentMethod $paymentMethod = PaymentMethod::Cod,
         ?int $addressId = null,
+        ?Coupon $coupon = null,
     ): Order {
-        $order = DB::transaction(function () use ($user, $delivery, $paymentMethod, $addressId): Order {
+        $order = DB::transaction(function () use ($user, $delivery, $paymentMethod, $addressId, $coupon): Order {
             /** @var Collection<int, Cart> $carts */
             $carts = $user->carts()->lockForUpdate()->get();
 
@@ -85,19 +87,46 @@ class CheckoutService
             $subtotal = round($subtotal, 2);
             $fee = round($subtotal * (float) config('marketplace.platform_fee'), 2);
 
+            $lockedCoupon = $coupon !== null
+                ? Coupon::query()->whereKey($coupon->id)->lockForUpdate()->first()
+                : null;
+
+            $discount = 0.0;
+
+            if ($lockedCoupon !== null) {
+                if (! $lockedCoupon->isAvailable()) {
+                    throw ValidationException::withMessages([
+                        'coupon' => 'This coupon is no longer available.',
+                    ]);
+                }
+
+                if (! $lockedCoupon->meetsMinimum($subtotal)) {
+                    throw ValidationException::withMessages([
+                        'coupon' => 'Your cart no longer meets the minimum spend for this coupon.',
+                    ]);
+                }
+
+                $discount = $lockedCoupon->discountFor($subtotal);
+            }
+
             $order = $user->orders()->create([
                 'status' => OrderStatus::Pending,
                 'payment_method' => $paymentMethod,
                 'address_id' => $addressId,
+                'coupon_id' => $lockedCoupon?->id,
+                'coupon_code' => $lockedCoupon?->code,
                 'delivery_name' => $delivery['name'],
                 'delivery_phone' => $delivery['phone'],
                 'delivery_address' => $delivery['address'],
                 'notes' => $delivery['notes'] ?? null,
                 'subtotal' => $subtotal,
+                'discount' => $discount,
                 'platform_fee' => $fee,
-                'total' => round($subtotal + $fee, 2),
+                'total' => round($subtotal - $discount + $fee, 2),
                 'placed_at' => now(),
             ]);
+
+            $lockedCoupon?->increment('used_count');
 
             $order->recordHistory(OrderStatus::Pending, $user, 'Order placed and stock reserved.');
 

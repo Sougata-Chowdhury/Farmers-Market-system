@@ -65,11 +65,44 @@
                 <aside class="card sticky top-24 p-5">
                     <h2 class="font-display text-lg font-semibold text-slate-900">Order summary</h2>
 
+                    <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        @if ($coupon)
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <p class="text-sm font-semibold text-emerald-800">Coupon {{ $coupon->code }}</p>
+                                    <p class="mt-0.5 text-xs text-emerald-700">
+                                        {{ $coupon->type->describe((float) $coupon->value) }} applied to this order.
+                                    </p>
+                                </div>
+                                <form method="POST" action="{{ route('coupons.destroy') }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-xs font-semibold text-slate-500 transition hover:text-rose-600">Remove</button>
+                                </form>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('coupons.store') }}" class="flex gap-2">
+                                @csrf
+                                <label for="coupon_code" class="sr-only">Coupon code</label>
+                                <input id="coupon_code" name="code" type="text" value="{{ old('code') }}"
+                                       class="input py-1.5 uppercase placeholder:normal-case" placeholder="Coupon code" autocomplete="off">
+                                <button type="submit" class="btn-secondary shrink-0 !py-1.5">Apply</button>
+                            </form>
+                            @error('code') <p class="field-error">{{ $message }}</p> @enderror
+                        @endif
+                    </div>
+
                     <dl class="mt-4 space-y-2 text-sm">
                         <div class="flex items-center justify-between">
                             <dt class="text-slate-500">Subtotal</dt>
                             <dd class="font-medium text-slate-900"><x-money :value="$totals['subtotal']" /></dd>
                         </div>
+                        @if ($totals['discount'] > 0)
+                            <div class="flex items-center justify-between text-emerald-700">
+                                <dt>Discount @if ($coupon) ({{ $coupon->code }}) @endif</dt>
+                                <dd class="font-semibold">−<x-money :value="$totals['discount']" /></dd>
+                            </div>
+                        @endif
                         <div class="flex items-center justify-between">
                             <dt class="text-slate-500">Platform fee ({{ (int) (config('marketplace.platform_fee') * 100) }}%)</dt>
                             <dd class="font-medium text-slate-900"><x-money :value="$totals['fee']" /></dd>

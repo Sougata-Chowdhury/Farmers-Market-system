@@ -53,6 +53,14 @@
                                 <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">Subtotal</td>
                                 <td class="px-4 py-2 text-right text-sm font-medium"><x-money :value="$order->subtotal" /></td>
                             </tr>
+                            @if ((float) $order->discount > 0)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right text-sm text-emerald-700">
+                                        Discount @if ($order->coupon_code) ({{ $order->coupon_code }}) @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-right text-sm font-semibold text-emerald-700">−<x-money :value="$order->discount" /></td>
+                                </tr>
+                            @endif
                             <tr>
                                 <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">
                                     Platform fee ({{ (int) (config('marketplace.platform_fee') * 100) }}%)

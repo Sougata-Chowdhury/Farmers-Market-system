@@ -19,11 +19,14 @@ class Order extends Model
         'status',
         'payment_method',
         'address_id',
+        'coupon_id',
+        'coupon_code',
         'delivery_name',
         'delivery_phone',
         'delivery_address',
         'notes',
         'subtotal',
+        'discount',
         'platform_fee',
         'total',
         'placed_at',
@@ -35,6 +38,7 @@ class Order extends Model
             'status' => OrderStatus::class,
             'payment_method' => PaymentMethod::class,
             'subtotal' => 'decimal:2',
+            'discount' => 'decimal:2',
             'platform_fee' => 'decimal:2',
             'total' => 'decimal:2',
             'placed_at' => 'datetime',
@@ -54,6 +58,11 @@ class Order extends Model
     public function address(): BelongsTo
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     public function histories(): HasMany

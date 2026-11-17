@@ -6,6 +6,7 @@ use App\Enums\PaymentMethod;
 use App\Http\Requests\CheckoutRequest;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\CouponService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -16,24 +17,29 @@ class CheckoutController extends Controller
     public function __construct(
         private readonly CartService $cart,
         private readonly CheckoutService $checkout,
+        private readonly CouponService $coupons,
     ) {}
 
     public function index(Request $request): View|RedirectResponse
     {
-        $totals = $this->cart->totals($request->user());
+        $user = $request->user();
+        $base = $this->cart->totals($user);
 
-        if ($totals['count'] === 0) {
+        if ($base['count'] === 0) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'Add something to your cart before checking out.');
         }
 
+        $coupon = $this->coupons->forSession($request, $base['subtotal']);
+
         return view('checkout.index', [
-            'items' => $this->cart->items($request->user()),
-            'totals' => $totals,
-            'customer' => $request->user(),
-            'addresses' => $request->user()->addresses()->orderByDesc('is_default')->orderBy('id')->get(),
-            'defaultAddress' => $request->user()->defaultAddress(),
+            'items' => $this->cart->items($user),
+            'totals' => $this->cart->totals($user, $coupon),
+            'coupon' => $coupon,
+            'customer' => $user,
+            'addresses' => $user->addresses()->orderByDesc('is_default')->orderBy('id')->get(),
+            'defaultAddress' => $user->defaultAddress(),
             'paymentMethods' => PaymentMethod::cases(),
         ]);
     }
@@ -43,6 +49,10 @@ class CheckoutController extends Controller
         $data = $request->validated();
         $user = $request->user();
         $address = null;
+
+        $base = $this->cart->totals($user);
+        $code = $request->session()->get('coupon_code');
+        $coupon = blank($code) ? null : $this->coupons->find((string) $code, $base['subtotal']);
 
         if (filled($data['address_id'] ?? null)) {
             $address = $user->addresses()->find($data['address_id']);
@@ -73,7 +83,10 @@ class CheckoutController extends Controller
             $delivery,
             PaymentMethod::from($data['payment_method']),
             $address?->id,
+            $coupon,
         );
+
+        $request->session()->forget('coupon_code');
 
         if ($address === null && ($data['save_address'] ?? false)) {
             $isFirst = $user->addresses()->count() === 0;

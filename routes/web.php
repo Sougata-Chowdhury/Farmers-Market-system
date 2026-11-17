@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FarmerController as AdminFarmerController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboardController;
 use App\Http\Controllers\Farmer\OrderController as FarmerOrderController;
@@ -54,6 +56,9 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
+    Route::post('/coupons', [CouponController::class, 'store'])->name('coupons.store');
+    Route::delete('/coupons', [CouponController::class, 'destroy'])->name('coupons.destroy');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
@@ -97,6 +102,11 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/farmers', [AdminFarmerController::class, 'index'])->name('farmers.index');
         Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+
+        Route::get('/coupons', [AdminCouponController::class, 'index'])->name('coupons.index');
+        Route::post('/coupons', [AdminCouponController::class, 'store'])->name('coupons.store');
+        Route::patch('/coupons/{coupon}/toggle', [AdminCouponController::class, 'toggle'])->name('coupons.toggle');
+        Route::delete('/coupons/{coupon}', [AdminCouponController::class, 'destroy'])->name('coupons.destroy');
     });
 
 require __DIR__.'/auth.php';

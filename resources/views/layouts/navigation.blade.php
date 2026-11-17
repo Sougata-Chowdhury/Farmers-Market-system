@@ -11,6 +11,8 @@
             ['label' => 'Orders', 'route' => 'admin.orders.index', 'active' => 'admin.orders.*'],
             ['label' => 'Products', 'route' => 'admin.products.index', 'active' => 'admin.products.*'],
             ['label' => 'Farmers', 'route' => 'admin.farmers.index', 'active' => 'admin.farmers.*'],
+            ['label' => 'Customers', 'route' => 'admin.customers.index', 'active' => 'admin.customers.*'],
+            ['label' => 'Coupons', 'route' => 'admin.coupons.index', 'active' => 'admin.coupons.*'],
         ],
         $navUser->isFarmer() => [
             ['label' => 'Dashboard', 'route' => 'farmer.dashboard', 'active' => 'farmer.dashboard'],

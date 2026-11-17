@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -21,9 +22,9 @@ class CartService
     }
 
     /**
-     * @return array{subtotal: float, fee: float, total: float, count: int}
+     * @return array{subtotal: float, discount: float, fee: float, total: float, count: int}
      */
-    public function totals(User $user): array
+    public function totals(User $user, ?Coupon $coupon = null): array
     {
         $subtotal = 0.0;
         $count = 0;
@@ -38,12 +39,14 @@ class CartService
         }
 
         $subtotal = round($subtotal, 2);
+        $discount = $coupon !== null ? $coupon->discountFor($subtotal) : 0.0;
         $fee = round($subtotal * (float) config('marketplace.platform_fee'), 2);
 
         return [
             'subtotal' => $subtotal,
+            'discount' => $discount,
             'fee' => $fee,
-            'total' => round($subtotal + $fee, 2),
+            'total' => round($subtotal - $discount + $fee, 2),
             'count' => $count,
         ];
     }

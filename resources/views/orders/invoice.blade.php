@@ -124,6 +124,12 @@
             <td class="muted">Subtotal</td>
             <td class="right">{{ number_format((float) $order->subtotal, 2) }} BDT</td>
         </tr>
+        @if ((float) $order->discount > 0)
+            <tr>
+                <td class="muted">Discount @if ($order->coupon_code) ({{ $order->coupon_code }}) @endif</td>
+                <td class="right" style="color: #047857;">−{{ number_format((float) $order->discount, 2) }} BDT</td>
+            </tr>
+        @endif
         <tr>
             <td class="muted">Platform fee ({{ (int) (config('marketplace.platform_fee') * 100) }}%)</td>
             <td class="right">{{ number_format((float) $order->platform_fee, 2) }} BDT</td>

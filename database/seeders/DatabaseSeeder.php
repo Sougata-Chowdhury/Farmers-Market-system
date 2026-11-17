@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             AddressSeeder::class,
             ProductSeeder::class,
             ReviewSeeder::class,
+            CouponSeeder::class,
             DemoOrderSeeder::class,
         ]);
     }
