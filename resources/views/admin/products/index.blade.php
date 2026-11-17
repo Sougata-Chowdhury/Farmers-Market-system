@@ -1,6 +1,8 @@
 <x-app-layout title="Product moderation">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <x-page-header title="Product moderation" subtitle="Hide, restore or remove listings that break the rules." />
+        <x-page-header title="Product moderation" subtitle="Hide, restore or remove listings that break the rules.">
+            <a href="{{ route('admin.exports.products') }}" class="btn-secondary">Export CSV</a>
+        </x-page-header>
 
         <form method="GET" action="{{ route('admin.products.index') }}" class="mt-6 flex flex-wrap items-end gap-3">
             <div>

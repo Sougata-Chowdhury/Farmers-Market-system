@@ -1,6 +1,7 @@
 <x-app-layout title="Sales">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <x-page-header title="Sales" subtitle="Every order that includes your products.">
+            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary">Export CSV</a>
             <a href="{{ route('farmer.products.index') }}" class="btn-secondary">Manage products</a>
         </x-page-header>
 

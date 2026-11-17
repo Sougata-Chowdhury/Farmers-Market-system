@@ -1,6 +1,8 @@
 <x-app-layout title="All orders">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <x-page-header title="All orders" subtitle="Search, filter and progress customer orders." />
+        <x-page-header title="All orders" subtitle="Search, filter and progress customer orders.">
+            <a href="{{ route('admin.exports.orders') }}" class="btn-secondary">Export CSV</a>
+        </x-page-header>
 
         <form method="GET" action="{{ route('admin.orders.index') }}" class="mt-6 flex flex-wrap items-end gap-3">
             <div>

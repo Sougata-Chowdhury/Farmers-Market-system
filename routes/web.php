@@ -4,6 +4,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ExportController as AdminExportController;
 use App\Http\Controllers\Admin\FarmerController as AdminFarmerController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboardController;
+use App\Http\Controllers\Farmer\ExportController as FarmerExportController;
 use App\Http\Controllers\Farmer\OrderController as FarmerOrderController;
 use App\Http\Controllers\Farmer\ProductController as FarmerProductController;
 use App\Http\Controllers\Farmer\ProfileController as FarmerProfileController;
@@ -88,6 +90,9 @@ Route::middleware(['auth', 'role:farmer'])
 
         Route::get('/orders', [FarmerOrderController::class, 'index'])->name('orders.index');
 
+        Route::get('/exports/orders', [FarmerExportController::class, 'orders'])->name('exports.orders');
+        Route::get('/exports/products', [FarmerExportController::class, 'products'])->name('exports.products');
+
         Route::get('/payout-details', [FarmerProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/payout-details', [FarmerProfileController::class, 'update'])->name('profile.update');
     });
@@ -114,6 +119,9 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/coupons', [AdminCouponController::class, 'store'])->name('coupons.store');
         Route::patch('/coupons/{coupon}/toggle', [AdminCouponController::class, 'toggle'])->name('coupons.toggle');
         Route::delete('/coupons/{coupon}', [AdminCouponController::class, 'destroy'])->name('coupons.destroy');
+
+        Route::get('/exports/orders', [AdminExportController::class, 'orders'])->name('exports.orders');
+        Route::get('/exports/products', [AdminExportController::class, 'products'])->name('exports.products');
     });
 
 require __DIR__.'/auth.php';

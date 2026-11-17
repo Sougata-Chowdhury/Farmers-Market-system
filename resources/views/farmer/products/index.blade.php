@@ -1,6 +1,7 @@
 <x-app-layout title="My products">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <x-page-header title="My products" subtitle="Publish, price and restock what you sell.">
+            <a href="{{ route('farmer.exports.products') }}" class="btn-secondary">Export CSV</a>
             <a href="{{ route('farmer.products.create') }}" class="btn-primary">Add product</a>
         </x-page-header>
 

@@ -1,18 +1,18 @@
 <x-app-layout title="Admin dashboard">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <x-page-header title="Platform overview" subtitle="Revenue, orders and marketplace health at a glance.">
-            <a href="{{ route('admin.orders.index') }}" class="btn-secondary">All orders</a>
-            <a href="{{ route('admin.products.index') }}" class="btn-primary">Moderate products</a>
+            <a href="{{ route('admin.exports.orders') }}" class="btn-secondary">Export orders CSV</a>
+            <a href="{{ route('admin.orders.index') }}" class="btn-primary">All orders</a>
         </x-page-header>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <x-stat-card label="Order revenue" :value="config('marketplace.currency.symbol').number_format($stats['revenue'], 2)" hint="Excludes cancelled orders" />
             <x-stat-card label="Platform fees" :value="config('marketplace.currency.symbol').number_format($stats['fees'], 2)" hint="Retained by the platform" />
             <x-stat-card label="Orders" :value="number_format($stats['orders'])" :hint="$stats['pending'].' awaiting confirmation'" />
-            <x-stat-card label="Products" :value="number_format($stats['products'])" hint="Active and hidden listings" />
+            <x-stat-card label="Average order" :value="config('marketplace.currency.symbol').number_format($stats['average_order'], 2)" hint="Across completed orders" />
         </div>
 
-        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div class="card flex items-center justify-between p-5">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Customers</p>
@@ -27,6 +27,42 @@
                 </div>
                 <a href="{{ route('admin.farmers.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">View</a>
             </div>
+            <div class="card flex items-center justify-between p-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Products</p>
+                    <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($stats['products']) }}</p>
+                </div>
+                <a href="{{ route('admin.products.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Moderate</a>
+            </div>
+            <div class="card flex items-center justify-between p-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pending orders</p>
+                    <p class="mt-1 text-2xl font-bold text-amber-600">{{ number_format($stats['pending']) }}</p>
+                </div>
+                <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="text-sm font-medium text-emerald-700 hover:underline">Review</a>
+            </div>
+        </div>
+
+        <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">
+            <section class="card p-5 sm:p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-display text-lg font-semibold text-slate-900">Revenue, last 30 days</h2>
+                        <p class="mt-1 text-sm text-slate-500">Cancelled orders are excluded from the totals.</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <x-line-chart :points="$revenueSeries" label="Daily revenue" :height="190" />
+                </div>
+            </section>
+
+            <section class="card p-5 sm:p-6">
+                <h2 class="font-display text-lg font-semibold text-slate-900">Orders by status</h2>
+                <p class="mt-1 text-sm text-slate-500">Every order ever placed.</p>
+                <div class="mt-4">
+                    <x-donut-chart :segments="$statusSegments" title="Orders by status" unit="orders" />
+                </div>
+            </section>
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.4fr_0.6fr] lg:items-start">
@@ -72,15 +108,26 @@
 
             <div class="space-y-4">
                 <section class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Order pipeline</h2>
-                    <ul class="mt-3 space-y-2">
-                        @foreach (\App\Enums\OrderStatus::cases() as $case)
-                            <li class="flex items-center justify-between gap-3">
-                                <x-status-badge :status="$case" />
-                                <span class="text-sm font-semibold text-slate-900">{{ number_format((int) ($statusCounts[$case->value] ?? 0)) }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
+                    <h2 class="font-display text-lg font-semibold text-slate-900">Top categories</h2>
+                    @if ($topCategories->isEmpty())
+                        <p class="mt-3 text-sm text-slate-500">No sales yet.</p>
+                    @else
+                        @php($categoryMax = max(1, (float) $topCategories->max('revenue')))
+                        <ul class="mt-3 space-y-3">
+                            @foreach ($topCategories as $category)
+                                <li>
+                                    <div class="flex items-center justify-between gap-3 text-sm">
+                                        <span class="font-medium text-slate-700">{{ $category->name }}</span>
+                                        <span class="font-semibold text-slate-900"><x-money :value="$category->revenue" /></span>
+                                    </div>
+                                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                        <div class="h-full rounded-full bg-emerald-500" style="width: {{ round(((float) $category->revenue / $categoryMax) * 100) }}%"></div>
+                                    </div>
+                                    <p class="mt-1 text-xs text-slate-400">{{ number_format((int) $category->units) }} units sold</p>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </section>
 
                 <section class="card p-5">

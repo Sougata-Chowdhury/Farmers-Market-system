@@ -1,29 +1,61 @@
 <x-app-layout title="Farmer dashboard">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <x-page-header :title="'Welcome back, '.auth()->user()->name" subtitle="Live numbers from your storefront — updated as customers order.">
+            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary">Export sales CSV</a>
             <a href="{{ route('farmer.products.create') }}" class="btn-primary">Add product</a>
-            <a href="{{ route('farmer.orders.index') }}" class="btn-secondary">View sales</a>
-            @if (auth()->user()->slug)
-                <a href="{{ route('farmers.show', auth()->user()) }}" class="btn-secondary" target="_blank" rel="noopener">View storefront</a>
-            @endif
         </x-page-header>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <x-stat-card label="Total earnings" :value="config('marketplace.currency.symbol').number_format($stats['earnings'], 2)" hint="Excludes cancelled orders" />
+            <x-stat-card label="Last 30 days" :value="config('marketplace.currency.symbol').number_format($lastThirtyDays, 2)" hint="Your recent momentum" />
             <x-stat-card label="Orders received" :value="number_format($stats['orders'])" hint="Distinct customer orders" />
-            <x-stat-card label="Units sold" :value="number_format($stats['units_sold'])" hint="All time" />
-            <x-stat-card label="Active products" :value="number_format($stats['active_products'])" :hint="$stats['low_stock'].' low on stock'" />
+            <x-stat-card label="Units sold" :value="number_format($stats['units_sold'])" :hint="$stats['active_products'].' active products'" />
         </div>
 
-        @if ($stats['low_stock'] > 0)
-            <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                <p>
-                    {{ $stats['low_stock'] }} {{ \Illuminate\Support\Str::plural('product', $stats['low_stock']) }} at or below 5 units.
-                    Restock to keep receiving orders.
-                </p>
-                <a href="{{ route('farmer.products.index') }}" class="font-semibold underline-offset-4 hover:underline">Manage stock</a>
-            </div>
-        @endif
+        <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">
+            <section class="card p-5 sm:p-6">
+                <h2 class="font-display text-lg font-semibold text-slate-900">Sales, last 30 days</h2>
+                <p class="mt-1 text-sm text-slate-500">Your share of each order, before platform fees.</p>
+                <div class="mt-4">
+                    <x-line-chart :points="$salesSeries" label="Daily sales" :height="190" />
+                </div>
+            </section>
+
+            <section class="card p-5 sm:p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="font-display text-lg font-semibold text-slate-900">Low stock</h2>
+                    <span @class([
+                        'rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset',
+                        'bg-amber-100 text-amber-800 ring-amber-200' => $stats['low_stock'] > 0,
+                        'bg-emerald-100 text-emerald-800 ring-emerald-200' => $stats['low_stock'] === 0,
+                    ])>
+                        {{ $stats['low_stock'] }} {{ \Illuminate\Support\Str::plural('product', $stats['low_stock']) }}
+                    </span>
+                </div>
+
+                @if ($lowStockProducts->isEmpty())
+                    <p class="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                        Everything is comfortably stocked. Keep it up.
+                    </p>
+                @else
+                    <ul class="mt-4 divide-y divide-slate-100">
+                        @foreach ($lowStockProducts as $product)
+                            <li class="flex items-center justify-between gap-3 py-2.5">
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-medium text-slate-900">{{ $product->name }}</p>
+                                    <p class="text-xs text-slate-500">{{ $product->stock }} {{ $product->unit }} left</p>
+                                </div>
+                                <a href="{{ route('farmer.products.edit', $product) }}"
+                                   class="shrink-0 text-xs font-semibold text-emerald-700 hover:underline">Restock</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <a href="{{ route('farmer.products.index') }}" class="mt-3 inline-block text-xs font-semibold text-slate-500 hover:text-emerald-700">
+                        Manage all products &rarr;
+                    </a>
+                @endif
+            </section>
+        </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-2">
             <section class="card overflow-hidden">
@@ -57,8 +89,8 @@
 
             <section class="card overflow-hidden">
                 <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Top products</h2>
-                    <a href="{{ route('farmer.products.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Manage products</a>
+                    <h2 class="font-display text-lg font-semibold text-slate-900">Best sellers</h2>
+                    <a href="{{ route('farmer.exports.products') }}" class="text-sm font-medium text-emerald-700 hover:underline">Export CSV</a>
                 </div>
 
                 @if ($topProducts->isEmpty())
