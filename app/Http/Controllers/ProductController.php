@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\RecentlyViewedService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    public function __construct(private readonly RecentlyViewedService $recentlyViewed) {}
+
     public function show(Request $request, Product $product): View
     {
         abort_unless($product->is_active, 404);
+
+        $this->recentlyViewed->track($request, $product);
 
         $product->load([
             'category:id,name,slug',
@@ -35,6 +40,7 @@ class ProductController extends Controller
         return view('products.show', [
             'product' => $product,
             'related' => $related,
+            'recentlyViewed' => $this->recentlyViewed->products($request, $product),
             'canReview' => $user?->isCustomer() === true
                 && ! $product->reviews->contains('user_id', $user->id),
             'myReview' => $user?->isCustomer() === true

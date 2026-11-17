@@ -26,27 +26,40 @@
         @else
             <div class="mt-6 space-y-3">
                 @foreach ($orders as $order)
-                    <a href="{{ route('orders.show', $order) }}"
-                       class="card flex flex-col gap-4 p-5 transition hover:border-emerald-300 hover:shadow-md sm:flex-row sm:items-center">
-                        <div class="flex-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <p class="font-semibold text-slate-900">Order #{{ $order->id }}</p>
-                                <x-status-badge :status="$order->status" />
+                    <div class="card flex flex-col gap-4 p-5 transition hover:border-emerald-300 hover:shadow-md sm:flex-row sm:items-center">
+                        <a href="{{ route('orders.show', $order) }}" class="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-semibold text-slate-900">Order #{{ $order->id }}</p>
+                                    <x-status-badge :status="$order->status" />
+                                </div>
+                                <p class="mt-1 text-sm text-slate-500">
+                                    Placed {{ $order->placed_at->format('d M Y, h:i A') }} &middot;
+                                    {{ $order->items_count }} {{ \Illuminate\Support\Str::plural('item', $order->items_count) }}
+                                </p>
                             </div>
-                            <p class="mt-1 text-sm text-slate-500">
-                                Placed {{ $order->placed_at->format('d M Y, h:i A') }} &middot;
-                                {{ $order->items_count }} {{ \Illuminate\Support\Str::plural('item', $order->items_count) }}
-                            </p>
-                        </div>
 
-                        <div class="flex items-center gap-4 sm:text-right">
-                            <div>
-                                <p class="text-xs uppercase tracking-wider text-slate-400">Total</p>
-                                <p class="font-bold text-slate-900"><x-money :value="$order->total" /></p>
+                            <div class="flex items-center gap-4 sm:text-right">
+                                <div>
+                                    <p class="text-xs uppercase tracking-wider text-slate-400">Total</p>
+                                    <p class="font-bold text-slate-900"><x-money :value="$order->total" /></p>
+                                </div>
+                                <span class="text-slate-300" aria-hidden="true">&rarr;</span>
                             </div>
-                            <span class="text-slate-300" aria-hidden="true">&rarr;</span>
-                        </div>
-                    </a>
+                        </a>
+
+                        @if ($order->status !== \App\Enums\OrderStatus::Cancelled)
+                            <form method="POST" action="{{ route('orders.reorder', $order) }}" class="sm:ml-auto">
+                                @csrf
+                                <button type="submit" class="btn-secondary w-full whitespace-nowrap sm:w-auto">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                    Buy again
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 @endforeach
             </div>
 

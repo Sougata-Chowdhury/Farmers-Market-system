@@ -75,19 +75,39 @@
                 <div class="mt-6">
                     @auth
                         @if (auth()->user()->isCustomer())
-                            <form method="POST" action="{{ route('cart.store', $product) }}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                @csrf
-                                <div class="flex items-center rounded-xl border border-slate-300 bg-white shadow-sm">
-                                    <label for="quantity" class="px-3 text-sm font-medium text-slate-600">Qty</label>
-                                    <input id="quantity" name="quantity" type="number" min="1" max="{{ $product->stock }}"
-                                           value="1" @disabled(! $product->inStock())
-                                           class="w-20 border-0 bg-transparent py-2.5 text-sm focus:ring-0">
-                                    <span class="px-3 text-xs text-slate-500">{{ $product->unit }}</span>
-                                </div>
-                                <button type="submit" class="btn-primary flex-1" @disabled(! $product->inStock())>
-                                    {{ $product->inStock() ? 'Add to cart' : 'Currently unavailable' }}
-                                </button>
-                            </form>
+                            @inject('wishlist', 'App\Services\WishlistService')
+                            @php($savedToWishlist = $wishlist->has(request(), $product))
+
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <form method="POST" action="{{ route('cart.store', $product) }}" class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+                                    @csrf
+                                    <div class="flex items-center rounded-xl border border-slate-300 bg-white shadow-sm">
+                                        <label for="quantity" class="px-3 text-sm font-medium text-slate-600">Qty</label>
+                                        <input id="quantity" name="quantity" type="number" min="1" max="{{ $product->stock }}"
+                                               value="1" @disabled(! $product->inStock())
+                                               class="w-20 border-0 bg-transparent py-2.5 text-sm focus:ring-0">
+                                        <span class="px-3 text-xs text-slate-500">{{ $product->unit }}</span>
+                                    </div>
+                                    <button type="submit" class="btn-primary flex-1" @disabled(! $product->inStock())>
+                                        {{ $product->inStock() ? 'Add to cart' : 'Currently unavailable' }}
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="{{ route($savedToWishlist ? 'wishlist.destroy' : 'wishlist.store', $product) }}" class="shrink-0">
+                                    @csrf
+                                    @if ($savedToWishlist)
+                                        @method('DELETE')
+                                    @endif
+                                    <button type="submit" class="btn-secondary w-full sm:w-auto" aria-pressed="{{ $savedToWishlist ? 'true' : 'false' }}">
+                                        <svg class="h-5 w-5 {{ $savedToWishlist ? 'text-rose-600' : 'text-slate-500' }}" viewBox="0 0 24 24"
+                                             fill="{{ $savedToWishlist ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                        </svg>
+                                        {{ $savedToWishlist ? 'Saved' : 'Save' }}
+                                    </button>
+                                </form>
+                            </div>
+
                             <p class="mt-3 text-xs text-slate-500">
                                 A {{ (int) (config('marketplace.platform_fee') * 100) }}% platform fee is added at checkout. Stock is reserved when you place the order.
                             </p>
@@ -186,6 +206,28 @@
                 <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($related as $relatedProduct)
                         <x-product-card :product="$relatedProduct" />
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if ($recentlyViewed->isNotEmpty())
+            <section class="mt-14">
+                <div class="flex items-end justify-between gap-4">
+                    <div>
+                        <h2 class="font-display text-2xl font-semibold tracking-tight text-slate-900">Recently viewed</h2>
+                        <p class="mt-1 text-sm text-slate-500">Pick up where you left off.</p>
+                    </div>
+                    @auth
+                        @if (auth()->user()->isCustomer())
+                            <a href="{{ route('wishlist.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Your wishlist</a>
+                        @endif
+                    @endauth
+                </div>
+
+                <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach ($recentlyViewed as $recentProduct)
+                        <x-product-card :product="$recentProduct" />
                     @endforeach
                 </div>
             </section>

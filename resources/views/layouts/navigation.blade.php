@@ -1,6 +1,7 @@
 @php
     $navUser = auth()->user();
     $cartCount = $navUser?->isCustomer() ? $navUser->cartCount() : 0;
+    $wishlistCount = $navUser?->isCustomer() ? app(\App\Services\WishlistService::class)->count(request()) : 0;
     $navNotifications = $navUser?->notifications()->latest()->limit(6)->get() ?? collect();
     $navUnread = $navUser?->unreadNotifications()->count() ?? 0;
 
@@ -121,6 +122,17 @@
                 </x-dropdown>
 
                 @if ($navUser->isCustomer())
+                    <a href="{{ route('wishlist.index') }}"
+                       class="relative inline-flex items-center rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-50"
+                       aria-label="Wishlist">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                        @if ($wishlistCount > 0)
+                            <span class="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[11px] font-bold text-white">{{ $wishlistCount }}</span>
+                        @endif
+                    </a>
+
                     <a href="{{ route('cart.index') }}"
                        class="relative inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -156,6 +168,7 @@
 
                         @if ($navUser->isCustomer())
                             <x-dropdown-link :href="route('orders.index')">My orders</x-dropdown-link>
+                            <x-dropdown-link :href="route('wishlist.index')">Wishlist ({{ $wishlistCount }})</x-dropdown-link>
                             <x-dropdown-link :href="route('addresses.index')">Delivery addresses</x-dropdown-link>
                         @endif
 
