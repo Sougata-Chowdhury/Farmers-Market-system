@@ -10,10 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'farmer_id',
@@ -90,12 +94,45 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('gallery')
+            ->useDisk('public')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Crop, 160, 160)
+            ->format('webp')
+            ->nonQueued();
+
+        $this->addMediaConversion('card')
+            ->fit(Fit::Crop, 600, 450)
+            ->format('webp')
+            ->nonQueued();
+
+        $this->addMediaConversion('full')
+            ->width(1200)
+            ->format('webp')
+            ->nonQueued();
+    }
+
     /**
      * Products can point at an external URL (seeded catalogue) or a file on
-     * the public disk (farmer uploads).
+     * the public disk (farmer uploads). Media library images always win.
      */
     public function getImageUrlAttribute(): string
     {
+        $media = $this->getFirstMedia('gallery');
+
+        if ($media !== null) {
+            return $media->hasGeneratedConversion('card')
+                ? $media->getUrl('card')
+                : $media->getUrl();
+        }
+
         if (blank($this->image_path)) {
             return asset('images/product-placeholder.svg');
         }
@@ -105,6 +142,38 @@ class Product extends Model
         }
 
         return Storage::disk('public')->url($this->image_path);
+    }
+
+    /**
+     * Images for the product gallery, falling back to the single image when
+     * no media has been uploaded yet.
+     *
+     * @return array<int, array{thumb: string, full: string, alt: string}>
+     */
+    public function galleryImages(): array
+    {
+        $images = $this->getMedia('gallery')
+            ->map(fn (Media $media): array => [
+                'thumb' => $media->hasGeneratedConversion('thumb')
+                    ? $media->getUrl('thumb')
+                    : $media->getUrl(),
+                'full' => $media->hasGeneratedConversion('full')
+                    ? $media->getUrl('full')
+                    : $media->getUrl(),
+                'alt' => $media->getCustomProperty('alt') ?: $this->name,
+            ])
+            ->values()
+            ->all();
+
+        if ($images !== []) {
+            return $images;
+        }
+
+        return [[
+            'thumb' => $this->image_url,
+            'full' => $this->image_url,
+            'alt' => $this->name,
+        ]];
     }
 
     public function getAverageRatingAttribute(): float

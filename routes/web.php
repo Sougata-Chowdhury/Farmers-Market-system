@@ -84,6 +84,7 @@ Route::middleware(['auth', 'role:farmer'])
         Route::get('/products/{product}/edit', [FarmerProductController::class, 'edit'])->name('products.edit');
         Route::patch('/products/{product}', [FarmerProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [FarmerProductController::class, 'destroy'])->name('products.destroy');
+        Route::delete('/products/{product}/media/{media}', [FarmerProductController::class, 'destroyMedia'])->name('products.media.destroy');
 
         Route::get('/orders', [FarmerOrderController::class, 'index'])->name('orders.index');
 

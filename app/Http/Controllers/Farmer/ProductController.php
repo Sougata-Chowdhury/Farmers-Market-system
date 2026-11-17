@@ -8,9 +8,8 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductController extends Controller
 {
@@ -37,12 +36,13 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('image');
+        $data = $request->safe()->except('images');
         $data['farmer_id'] = $request->user()->id;
-        $data['image_path'] = $this->storeImage($request);
         $data['is_active'] = true;
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        $this->storeImages($request, $product);
 
         return redirect()
             ->route('farmer.products.index')
@@ -63,14 +63,9 @@ class ProductController extends Controller
     {
         $this->authorize('update', $product);
 
-        $data = $request->safe()->except('image');
+        $product->update($request->safe()->except('images'));
 
-        if ($path = $this->storeImage($request)) {
-            $this->deleteImage($product->image_path);
-            $data['image_path'] = $path;
-        }
-
-        $product->update($data);
+        $this->storeImages($request, $product);
 
         return redirect()
             ->route('farmer.products.index')
@@ -89,19 +84,24 @@ class ProductController extends Controller
             ->with('status', 'Product removed from the marketplace.');
     }
 
-    private function storeImage(ProductRequest $request): ?string
+    public function destroyMedia(Product $product, Media $media): RedirectResponse
     {
-        if (! $request->hasFile('image')) {
-            return null;
-        }
+        $this->authorize('update', $product);
 
-        return $request->file('image')->store('products', 'public');
+        abort_unless(
+            $media->model_type === $product->getMorphClass() && $media->model_id === $product->getKey(),
+            404
+        );
+
+        $media->delete();
+
+        return back()->with('status', 'Photo removed from the gallery.');
     }
 
-    private function deleteImage(?string $path): void
+    private function storeImages(ProductRequest $request, Product $product): void
     {
-        if ($path && ! Str::startsWith($path, ['http://', 'https://'])) {
-            Storage::disk('public')->delete($path);
+        foreach ($request->file('images', []) as $file) {
+            $product->addMedia($file)->toMediaCollection('gallery');
         }
     }
 }

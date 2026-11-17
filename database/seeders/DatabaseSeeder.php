@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             DemoUsersSeeder::class,
             AddressSeeder::class,
             ProductSeeder::class,
+            ProductGallerySeeder::class,
             ReviewSeeder::class,
             CouponSeeder::class,
             DemoOrderSeeder::class,

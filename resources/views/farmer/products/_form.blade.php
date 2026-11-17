@@ -71,15 +71,35 @@
 
     <aside class="space-y-4">
         <div class="card p-5">
-            <h2 class="font-display text-lg font-semibold text-slate-900">Photo</h2>
-            <div class="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-                <img src="{{ $product->image_url }}" alt="" onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';" class="aspect-[4/3] w-full object-cover">
-            </div>
-            <label for="image" class="label mt-4">Upload image</label>
-            <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp"
+            <h2 class="font-display text-lg font-semibold text-slate-900">Photos</h2>
+            <p class="mt-1 text-sm text-slate-500">The first photo becomes the cover on the marketplace.</p>
+
+            @if ($editing && ($media = $product->getMedia('gallery'))->isNotEmpty())
+                <div class="mt-3 grid grid-cols-3 gap-2">
+                    @foreach ($media as $photo)
+                        <div class="group relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                            <img src="{{ $photo->hasGeneratedConversion('thumb') ? $photo->getUrl('thumb') : $photo->getUrl() }}"
+                                 alt="" class="aspect-square w-full object-cover">
+                            <button type="submit" form="delete-media-{{ $photo->id }}"
+                                    class="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-slate-900/70 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"
+                                    aria-label="Remove photo" title="Remove photo">
+                                &times;
+                            </button>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                    <img src="{{ $product->image_url }}" alt="" onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';" class="aspect-[4/3] w-full object-cover">
+                </div>
+            @endif
+
+            <label for="images" class="label mt-4">Add photos</label>
+            <input id="images" name="images[]" type="file" accept="image/jpeg,image/png,image/webp" multiple
                    class="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100">
-            <p class="mt-2 text-xs text-slate-500">JPG, PNG or WebP up to 2 MB. Leave empty to keep the current photo.</p>
-            @error('image') <p class="field-error">{{ $message }}</p> @enderror
+            <p class="mt-2 text-xs text-slate-500">JPG, PNG or WebP up to 4 MB each. Upload up to 5 at a time; they are converted to WebP automatically.</p>
+            @error('images') <p class="field-error">{{ $message }}</p> @enderror
+            @error('images.*') <p class="field-error">{{ $message }}</p> @enderror
         </div>
 
         <div class="card space-y-3 p-5">
@@ -91,3 +111,13 @@
         </div>
     </aside>
 </form>
+
+@if ($editing)
+    @foreach ($product->getMedia('gallery') as $photo)
+        <form id="delete-media-{{ $photo->id }}" method="POST"
+              action="{{ route('farmer.products.media.destroy', [$product, $photo]) }}" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
+@endif

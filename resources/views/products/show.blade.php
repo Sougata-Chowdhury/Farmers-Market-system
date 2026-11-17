@@ -11,10 +11,29 @@
         </nav>
 
         <div class="grid gap-8 lg:grid-cols-2">
-            <div class="card overflow-hidden">
-                <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                     onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';"
-                     class="aspect-square w-full object-cover">
+            @php($images = $product->galleryImages())
+
+            <div x-data="{ active: 0, images: @js($images) }" class="space-y-3">
+                <div class="card overflow-hidden">
+                    <img src="{{ $images[0]['full'] }}" :src="images[active]?.full" :alt="images[active]?.alt ?? @js($product->name)"
+                         onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';"
+                         class="aspect-square w-full object-cover">
+                </div>
+
+                @if (count($images) > 1)
+                    <div class="grid grid-cols-5 gap-2" role="group" aria-label="Product photos">
+                        <template x-for="(image, index) in images" :key="index">
+                            <button type="button"
+                                    x-on:click="active = index"
+                                    class="overflow-hidden rounded-lg bg-slate-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                    :class="active === index ? 'ring-2 ring-emerald-500' : 'ring-1 ring-slate-200 hover:ring-emerald-300'"
+                                    :aria-label="'Show photo ' + (index + 1)"
+                                    :aria-pressed="active === index">
+                                <img :src="image.thumb" :alt="image.alt" class="aspect-square w-full object-cover" loading="lazy">
+                            </button>
+                        </template>
+                    </div>
+                @endif
             </div>
 
             <div class="flex flex-col">

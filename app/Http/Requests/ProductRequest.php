@@ -23,7 +23,8 @@ class ProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0.01', 'max:999999'],
             'stock' => ['required', 'integer', 'min:0', 'max:100000'],
             'unit' => ['required', 'in:kg,piece,bundle,dozen,litre'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'images' => ['nullable', 'array', 'max:5'],
+            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 
@@ -33,7 +34,8 @@ class ProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'image.mimes' => 'Upload a JPG, PNG or WebP image up to 2 MB.',
+            'images.max' => 'Upload up to 5 photos at a time.',
+            'images.*.mimes' => 'Each photo must be a JPG, PNG or WebP image up to 4 MB.',
         ];
     }
 }
