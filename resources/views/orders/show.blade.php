@@ -91,6 +91,10 @@
                             <dt class="text-xs uppercase tracking-wider text-slate-400">Address</dt>
                             <dd class="text-slate-700">{{ $order->delivery_address }}</dd>
                         </div>
+                        <div>
+                            <dt class="text-xs uppercase tracking-wider text-slate-400">Payment</dt>
+                            <dd class="text-slate-700">{{ $order->payment_method->label() }}</dd>
+                        </div>
                         @if ($order->notes)
                             <div>
                                 <dt class="text-xs uppercase tracking-wider text-slate-400">Note</dt>

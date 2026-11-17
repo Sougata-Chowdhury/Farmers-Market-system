@@ -134,6 +134,16 @@ class User extends Authenticatable
         return $this->hasMany(Cart::class);
     }
 
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress(): ?Address
+    {
+        return $this->addresses()->orderByDesc('is_default')->orderBy('id')->first();
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

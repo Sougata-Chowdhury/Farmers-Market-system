@@ -46,7 +46,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        $order->load(['items.farmer:id,name', 'user', 'histories.actor:id,name,role']);
+        $order->load(['items.farmer:id,name', 'user', 'address:id,label', 'histories.actor:id,name,role']);
 
         return view('admin.orders.show', ['order' => $order]);
     }

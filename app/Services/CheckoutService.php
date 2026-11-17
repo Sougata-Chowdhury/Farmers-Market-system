@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\UserRole;
 use App\Mail\OrderPlaced;
 use App\Mail\OrderPlacedForFarmer;
@@ -29,9 +30,13 @@ class CheckoutService
      *
      * @param  array{name: string, phone: string, address: string, notes?: ?string}  $delivery
      */
-    public function placeOrder(User $user, array $delivery): Order
-    {
-        $order = DB::transaction(function () use ($user, $delivery): Order {
+    public function placeOrder(
+        User $user,
+        array $delivery,
+        PaymentMethod $paymentMethod = PaymentMethod::Cod,
+        ?int $addressId = null,
+    ): Order {
+        $order = DB::transaction(function () use ($user, $delivery, $paymentMethod, $addressId): Order {
             /** @var Collection<int, Cart> $carts */
             $carts = $user->carts()->lockForUpdate()->get();
 
@@ -82,6 +87,8 @@ class CheckoutService
 
             $order = $user->orders()->create([
                 'status' => OrderStatus::Pending,
+                'payment_method' => $paymentMethod,
+                'address_id' => $addressId,
                 'delivery_name' => $delivery['name'],
                 'delivery_phone' => $delivery['phone'],
                 'delivery_address' => $delivery['address'],

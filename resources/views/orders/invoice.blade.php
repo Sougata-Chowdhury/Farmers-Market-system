@@ -143,7 +143,7 @@
                 </span>
             </td>
             <td class="right small muted">
-                Payment collected on delivery.<br>
+                Payment method: {{ $order->payment_method->label() }}<br>
                 Thank you for buying directly from farmers.
             </td>
         </tr>

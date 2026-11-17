@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FarmerController as AdminFarmerController;
@@ -40,6 +41,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
+    Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/{product}', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');

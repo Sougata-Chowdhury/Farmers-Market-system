@@ -71,6 +71,14 @@
                             <dt class="text-xs uppercase tracking-wider text-slate-400">Address</dt>
                             <dd class="text-slate-700">{{ $order->delivery_address }}</dd>
                         </div>
+                        <div>
+                            <dt class="text-xs uppercase tracking-wider text-slate-400">Payment method</dt>
+                            <dd class="text-slate-700">{{ $order->payment_method->label() }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase tracking-wider text-slate-400">Saved address</dt>
+                            <dd class="text-slate-700">{{ $order->address?->label ?? 'Entered at checkout' }}</dd>
+                        </div>
                         @if ($order->notes)
                             <div class="sm:col-span-2">
                                 <dt class="text-xs uppercase tracking-wider text-slate-400">Customer note</dt>

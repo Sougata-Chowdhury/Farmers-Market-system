@@ -43,6 +43,39 @@
                 </form>
             </section>
 
+            @if ($user->isCustomer())
+                @php($defaultAddress = $user->defaultAddress())
+
+                <section class="card p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 class="font-display text-lg font-semibold text-slate-900">Delivery addresses</h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{ $user->addresses()->count() }} saved
+                                @if ($defaultAddress)
+                                    &middot; default is {{ $defaultAddress->label }}
+                                @endif
+                            </p>
+                        </div>
+                        <a href="{{ route('addresses.index') }}" class="btn-secondary">Manage addresses</a>
+                    </div>
+
+                    @if ($defaultAddress)
+                        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
+                            <p class="font-semibold text-slate-900">{{ $defaultAddress->label }}</p>
+                            <p class="mt-1 text-slate-600">
+                                {{ $defaultAddress->recipient_name }} &middot; {{ $defaultAddress->phone }}<br>
+                                {{ $defaultAddress->address_line }}@if ($defaultAddress->area), {{ $defaultAddress->area }}@endif
+                            </p>
+                        </div>
+                    @else
+                        <p class="mt-4 text-sm text-slate-500">
+                            Add an address to check out faster next time.
+                        </p>
+                    @endif
+                </section>
+            @endif
+
             <section class="card p-5 sm:p-6">
                 <h2 class="font-display text-lg font-semibold text-slate-900">Change password</h2>
                 <p class="mt-1 text-sm text-slate-500">Use a long password you don't reuse anywhere else.</p>

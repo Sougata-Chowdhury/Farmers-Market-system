@@ -154,6 +154,7 @@
 
                         @if ($navUser->isCustomer())
                             <x-dropdown-link :href="route('orders.index')">My orders</x-dropdown-link>
+                            <x-dropdown-link :href="route('addresses.index')">Delivery addresses</x-dropdown-link>
                         @endif
 
                         @if ($navUser->isFarmer())

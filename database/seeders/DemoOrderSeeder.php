@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -26,6 +27,7 @@ class DemoOrderSeeder extends Seeder
         $orders = [
             [
                 'status' => OrderStatus::Delivered,
+                'payment' => PaymentMethod::Bkash,
                 'placed_at' => now()->subDays(3)->setTime(10, 15),
                 'lines' => [
                     ['Lal Shak (Red Spinach)', 2],
@@ -35,6 +37,7 @@ class DemoOrderSeeder extends Seeder
             ],
             [
                 'status' => OrderStatus::Confirmed,
+                'payment' => PaymentMethod::Cod,
                 'placed_at' => now()->subDay()->setTime(16, 40),
                 'lines' => [
                     ['Kagozi Lebu (Kagozi Lemon)', 4],
@@ -43,6 +46,7 @@ class DemoOrderSeeder extends Seeder
             ],
             [
                 'status' => OrderStatus::Pending,
+                'payment' => PaymentMethod::Nagad,
                 'placed_at' => now()->subHours(5),
                 'lines' => [
                     ['Dhundhul (Sponge Gourd) ±20 gm', 2],
@@ -53,6 +57,8 @@ class DemoOrderSeeder extends Seeder
         $products = Product::whereIn('name', collect($orders)->flatMap(fn (array $order) => collect($order['lines'])->pluck(0))->all())
             ->get()
             ->keyBy('name');
+
+        $address = $customer->addresses()->orderByDesc('is_default')->orderBy('id')->first();
 
         foreach ($orders as $definition) {
             $lines = [];
@@ -81,6 +87,8 @@ class DemoOrderSeeder extends Seeder
 
             $order = $customer->orders()->create([
                 'status' => $definition['status'],
+                'payment_method' => $definition['payment'],
+                'address_id' => $address?->id,
                 'delivery_name' => $customer->name,
                 'delivery_phone' => $customer->phone,
                 'delivery_address' => $customer->address,

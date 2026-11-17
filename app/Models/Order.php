@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,8 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'status',
+        'payment_method',
+        'address_id',
         'delivery_name',
         'delivery_phone',
         'delivery_address',
@@ -30,6 +33,7 @@ class Order extends Model
     {
         return [
             'status' => OrderStatus::class,
+            'payment_method' => PaymentMethod::class,
             'subtotal' => 'decimal:2',
             'platform_fee' => 'decimal:2',
             'total' => 'decimal:2',
@@ -45,6 +49,11 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function histories(): HasMany
