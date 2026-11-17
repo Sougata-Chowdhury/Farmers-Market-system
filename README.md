@@ -1,28 +1,19 @@
-# Farmers Market — Farming Inventory Management System
+# Farmers Market
 
-A portfolio-ready rewrite of a legacy PHP/MySQL farming inventory system. Farmers list produce, customers shop and check out, and admins moderate the marketplace — all behind proper authentication, role-based access and transactional stock control.
+### A polished Laravel 12 marketplace for local farm produce
+
+Farmers Market is a portfolio-ready rewrite of a legacy farming inventory application. It turns a basic catalogue into a complete multi-role marketplace where customers discover fresh produce, farmers manage their storefronts, and admins operate the platform.
 
 ![Farmers Market home page](docs/screenshots/home.png)
 
-## Why this rewrite
+[![Laravel](https://img.shields.io/badge/Laravel-12-ff2d20?logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
+[![Tests](https://img.shields.io/badge/tests-142%20passing-16a34a)](#quality)
+[![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
-The original application worked, but it was unsafe and hard to maintain:
+## Product tour
 
-| Legacy problem | This rewrite |
-| --- | --- |
-| Plaintext admin password (`123`) and custom login scripts | Breeze authentication with hashed passwords and session protection |
-| Random string IDs written into `int customer_id` columns | Typed users, foreign keys and role enums |
-| String-concatenated SQL in delete handlers | Eloquent models and prepared statements throughout |
-| Unvalidated uploads written to a public folder | Form requests validate images; files are stored on Laravel's public disk |
-| 5% fee added cumulatively per cart row | Subtotal and platform fee calculated once per order |
-| Broken includes and redirects (`product/index.php`, `login.php`) | Named routes, controllers and consistent redirects |
-| No authorisation checks | Policies plus `role` middleware for customer, farmer and admin areas |
-
-The original code is preserved in [`legacy/`](legacy/) (including `farming_inventory.sql`) for reference.
-
-## Screenshots
-
-| Storefront | Product page |
+| Storefront | Product detail |
 | --- | --- |
 | ![Storefront](docs/screenshots/home.png) | ![Product detail](docs/screenshots/product.png) |
 
@@ -34,40 +25,82 @@ The original code is preserved in [`legacy/`](legacy/) (including `farming_inven
 | --- | --- |
 | ![Admin dashboard](docs/screenshots/admin-dashboard.png) | ![Login](docs/screenshots/login.png) |
 
-## Features
+## What is included
 
-### Customers
-- Browse, search, filter and sort 70 seeded products by category.
-- Add to cart with live stock checks and a visible 5% platform fee.
-- Checkout with delivery details, transactional stock reservation and an order history.
-- Cancel pending/confirmed orders; cancelled stock is returned to farmers.
-- Leave one review per purchased product.
+### Customer experience
 
-### Farmers
-- Role-protected dashboard with earnings, orders received, units sold and active listings.
-- Create, edit, hide and remove their own products (ownership enforced by policy).
-- Upload JPG/PNG/WebP product images (validated and stored privately on the public disk).
-- See only their own order lines and payout details.
+- Search, category filtering, sorting and responsive product cards.
+- Farmer storefronts with farm name, location, bio and product listings.
+- Product galleries with thumbnail navigation and responsive imagery.
+- Session wishlist, recently viewed products and one-click **Buy again** reorder.
+- Stock-aware cart with AJAX add, update and remove actions.
+- Live mini-cart drawer, item badge and toast feedback without a page reload.
+- Checkout with saved addresses, optional new address creation and payment method selection.
+- Coupon codes with validation, discount limits and transactional usage tracking.
+- Order timeline, cancellation rules, email notifications and in-app notifications.
+- Downloadable PDF invoices with order QR codes.
+- Customer reviews for purchased products.
+- Mobile sticky add-to-cart bar and mobile filter drawer.
 
-### Admins
-- Marketplace overview: revenue, platform fees, order pipeline and best sellers.
-- Moderate products: hide, publish, soft-delete and restore listings.
-- Move orders through `pending → confirmed → delivered`, or cancel and restore stock.
-- Browse farmers and customers.
+### Farmer workspace
+
+- Public storefront for every farmer.
+- Dashboard with 30-day sales chart, earnings, best sellers and low-stock alerts.
+- Product create/edit workflow with up to five JPG, PNG or WebP gallery uploads.
+- Spatie Media Library conversions: `thumb`, `card` and `full`, generated as WebP.
+- Product ownership policies and farmer-only order visibility.
+- Sales and catalogue CSV exports.
+- Storefront profile and payout details.
+
+### Admin workspace
+
+- Revenue, fee, order and average-order-value overview.
+- 30-day revenue chart, order status donut and top category analysis.
+- Product moderation with hide, publish, soft-delete and restore actions.
+- Customer, farmer, coupon and order management.
+- Platform-wide order and product CSV exports.
+- Low-stock email digest support and notification centre.
+
+### Platform polish
+
+- Breeze authentication with role-based access and policies.
+- Transactional checkout with row locks, stock revalidation and status history.
+- Accessible modal confirmations instead of browser `confirm()` dialogs.
+- Skip link, live regions, keyboard-friendly dropdowns, labels and ARIA state.
+- Canonical URLs, Open Graph/Twitter cards, Product JSON-LD, sitemap and robots routes.
+- Mailpit-ready local email workflow.
+- Seeded Bangladeshi produce catalogue with local WebP assets.
+
+## Why this rewrite
+
+The original application is preserved in [`legacy/`](legacy/) for comparison. The rewrite replaces the most fragile parts of the legacy system with a maintainable Laravel architecture:
+
+| Legacy issue | Rewrite approach |
+| --- | --- |
+| Plaintext admin password and custom login scripts | Laravel Breeze authentication, password hashing and sessions |
+| String-concatenated SQL | Eloquent models, relationships and prepared queries |
+| Missing authorization checks | Policies plus role middleware for customers, farmers and admins |
+| Unsafe upload handling | Form Request validation and Media Library conversions |
+| Per-row fee calculation errors | Centralized cart totals and transactional checkout calculations |
+| No stock audit trail | Locked stock reservation and `order_status_histories` |
+| Inconsistent redirects and includes | Named routes, controllers, Blade components and services |
 
 ## Tech stack
 
-- **Laravel 12** (PHP 8.2+)
-- **MySQL 8** (SQLite in-memory for tests)
-- **Blade + Tailwind CSS + Alpine.js**
-- **Vite** for assets
-- **PHPUnit** for feature tests
+- **Backend:** Laravel 12, PHP 8.2+, MySQL 8 / MariaDB
+- **Frontend:** Blade, Tailwind CSS, Alpine.js, Vite
+- **Authentication:** Laravel Breeze
+- **Media:** Spatie Laravel Media Library, GD/WebP
+- **Documents:** Dompdf and QR Code generation
+- **Email:** Laravel Mail with Mailpit for local development
+- **Testing:** PHPUnit 11, Laravel feature tests
+- **Local development:** Laravel Sail / Docker or local PHP and MySQL
 
-## Getting started
+## Quick start
 
-### Option A — Docker with Laravel Sail
+### Option A: Laravel Sail / Docker
 
-Requirements: Docker Desktop, Composer, Node.js.
+Requirements: Docker Desktop, Composer and Node.js.
 
 ```bash
 cp .env.example .env
@@ -80,22 +113,23 @@ composer install
 ./vendor/bin/sail npm run build
 ```
 
-Open <http://localhost:8000>. The example environment points the app at the `mysql` service and exposes MySQL on port `3307` so it will not clash with a local server.
+Open <http://localhost>. Mailpit is available at <http://localhost:8025>.
 
-On Windows PowerShell, use `vendor\bin\sail` instead of `./vendor/bin/sail`.
+On Windows PowerShell, use `vendor\\bin\\sail` instead of `./vendor/bin/sail`.
 
-### Option B — Local PHP/MySQL
+### Option B: Local PHP and MySQL/MariaDB
 
-Requirements: PHP 8.2+ with `pdo_mysql`, MySQL/MariaDB, Composer, Node.js.
+Requirements: PHP 8.2+ with `pdo_mysql`, `gd`, `exif`, `intl` and `zip`, Composer, Node.js, and MySQL/MariaDB.
 
 ```bash
 composer install
-cp .env.example .env
-# Edit .env for your local database:
-#   DB_HOST=127.0.0.1
-#   DB_USERNAME=root
-#   DB_PASSWORD=
+copy .env.example .env
 php artisan key:generate
+```
+
+Configure the database in `.env`, then run:
+
+```bash
 php artisan migrate --seed
 php artisan storage:link
 npm install
@@ -103,11 +137,13 @@ npm run build
 php artisan serve
 ```
 
-The seeder creates 70 catalogue products, 15 reviews and three demo orders. Product thumbnails are generated locally as SVGs, so the app works without any external image CDN.
+Open <http://127.0.0.1:8000>.
+
+For local email inspection, set `MAIL_MAILER=log` for a simple log-only setup, or run Mailpit through Sail and use its SMTP settings from `.env.example`.
 
 ### Demo accounts
 
-All accounts use the password `password`.
+All seeded accounts use the password `password`.
 
 | Role | Email |
 | --- | --- |
@@ -116,38 +152,74 @@ All accounts use the password `password`.
 | Farmer | `ayesha@farmersmarket.test` |
 | Customer | `customer@farmersmarket.test` |
 
-## Testing
+Seeded coupon codes include `FRESH10`, `FLAT50` and `BULK15`.
+
+## Useful commands
 
 ```bash
+# Run the complete test suite
 php artisan test
+
+# Format changed PHP files
+vendor/bin/pint --dirty
+
+# Build production frontend assets
+npm run build
+
+# Inspect routes
+php artisan route:list
+
+# Rebuild the database and demo catalogue
+php artisan migrate:fresh --seed
 ```
 
-The suite covers registration and profile rules, role-based access (403s), cart stock limits, checkout totals and stock decrement, order cancellation/stock restoration, and admin status transitions.
+## Quality
+
+The current Tier 4 baseline is green:
+
+- **142 tests passing**
+- **487 assertions**
+- Laravel Pint clean
+- Vite production build successful
+- Browser homepage smoke check completed with no console errors
+
+The feature suite covers authentication, role access, carts, AJAX cart payloads, coupons, checkout, stock control, order history, notifications, invoices, addresses, wishlist, reorder, media galleries, dashboards, CSV exports and SEO routes.
 
 ## Project structure
 
-```
+```text
 app/
-  Http/Controllers/      Home, product, cart, checkout, orders, farmer/*, admin/*
-  Http/Requests/         Validation for products, checkout, bank details, reviews
-  Models/                User, Farmer, Category, Product, Cart, Order, OrderItem, Review
-  Policies/              ProductPolicy, OrderPolicy
-  Services/              CartService, CheckoutService
-  Support/               ProductPlaceholder (local SVG thumbnails)
+  Http/Controllers/       Public, customer, farmer, admin and export endpoints
+  Http/Requests/           Input validation and authorization
+  Models/                  Users, farmers, products, carts, orders and media
+  Policies/                Product and order ownership rules
+  Services/               Cart, checkout, coupon, wishlist and reorder logic
+  Support/                 CSV, QR and placeholder helpers
+  View/Components/         Reusable Blade layout components
+
 database/
-  migrations/            Full relational schema
-  seeders/               Categories, demo users, 70 products, reviews, demo orders
-resources/views/         Blade UI for every role
-routes/web.php           Public, customer, farmer and admin route groups
-legacy/                  Original PHP application and SQL dump
+  migrations/              Relational schema and order audit trail
+  seeders/                 Demo users, catalogue, galleries, coupons and orders
+
+resources/
+  js/app.js                Alpine cart store and AJAX interactions
+  views/                   Accessible Blade interface for every role
+
+routes/web.php             Public, customer, farmer and admin routes
+tests/Feature/             End-to-end HTTP and workflow coverage
+legacy/                    Original PHP application and SQL dump
+docs/screenshots/          Portfolio screenshots
 ```
 
-### Notes on correctness
+## Correctness and security notes
 
-- `CheckoutService` runs in a database transaction with row locks on the cart and products, re-checks stock, writes the order header/items and decrements stock atomically.
-- Cancelling an order restores each line's quantity to the product, including soft-deleted products.
-- Cart quantities are validated against current stock both when adding and when checking out.
-- Deleting an account is refused when the user has order history, protecting the `restrictOnDelete` foreign key.
+- Checkout runs inside a database transaction and locks cart/product rows while rechecking stock.
+- Order status changes are recorded in an immutable status-history table.
+- Cancelling an order restores quantities, including soft-deleted products.
+- Customers can only access their own orders, addresses, wishlist and invoices.
+- Farmers can only modify their own products and see their own order lines.
+- Account deletion requires password confirmation and is blocked when order history would violate referential integrity.
+- Media uploads are MIME/type/size validated before conversion.
 
 ## License
 
