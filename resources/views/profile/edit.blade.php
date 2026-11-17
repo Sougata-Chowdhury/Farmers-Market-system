@@ -117,8 +117,7 @@
                     This permanently removes your account. Orders you placed stay in the system for farmers' records.
                 </p>
 
-                <form method="POST" action="{{ route('profile.destroy') }}" class="mt-4 flex flex-wrap items-end gap-3"
-                      onsubmit="return confirm('Delete your account permanently?');">
+                <form id="delete-account-form" method="POST" action="{{ route('profile.destroy') }}" class="mt-4 flex flex-wrap items-end gap-3">
                     @csrf
                     @method('delete')
 
@@ -131,8 +130,38 @@
                         @endforeach
                     </div>
 
-                    <button type="submit" class="btn-danger">Delete my account</button>
+                    <button type="button" class="btn-danger" x-on:click="$dispatch('open-modal', 'delete-account')">
+                        Delete my account
+                    </button>
                 </form>
+
+                <x-modal name="delete-account" max-width="md" label="Delete your account?">
+                    <div class="p-6">
+                        <div class="flex items-start gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-rose-50 text-rose-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h2 class="font-display text-lg font-semibold text-slate-900">Delete your account?</h2>
+                                <p class="mt-1 text-sm text-slate-600">
+                                    This permanently removes your profile, addresses and saved items. Past orders stay with the farmers who fulfilled them.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                            <button type="button" class="btn-secondary"
+                                    x-on:click="$dispatch('close-modal', 'delete-account')">
+                                Keep my account
+                            </button>
+                            <button type="submit" form="delete-account-form" class="btn-danger">
+                                Yes, delete permanently
+                            </button>
+                        </div>
+                    </div>
+                </x-modal>
             </section>
         </div>
     </div>

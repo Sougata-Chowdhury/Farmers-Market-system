@@ -134,6 +134,40 @@ class CartTest extends TestCase
         $this->assertSame(2, $totals['count']);
     }
 
+    public function test_ajax_adds_return_the_mini_cart_payload(): void
+    {
+        $product = $this->product(['stock' => 10]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson(route('cart.store', $product), ['quantity' => 2])
+            ->assertOk()
+            ->assertJsonPath('count', 2)
+            ->assertJsonPath('subtotal', 200);
+
+        $html = (string) $response->json('html');
+
+        $this->assertStringContainsString('Fresh Tomato', $html);
+        $this->assertStringContainsString('Checkout', $html);
+        $this->assertSame('Fresh Tomato added to your cart.', $response->json('message'));
+    }
+
+    public function test_the_mini_cart_endpoint_requires_a_customer(): void
+    {
+        $this->getJson(route('cart.mini'))->assertUnauthorized();
+
+        $farmer = User::factory()->farmer()->create();
+        $this->actingAs($farmer)->getJson(route('cart.mini'))->assertForbidden();
+    }
+
+    public function test_the_mini_cart_endpoint_reports_an_empty_cart(): void
+    {
+        $this->actingAs($this->customer)
+            ->getJson(route('cart.mini'))
+            ->assertOk()
+            ->assertJsonPath('count', 0)
+            ->assertJsonPath('html', fn (string $html): bool => str_contains($html, 'Your cart is empty'));
+    }
+
     /**
      * @param  array<string, mixed>  $overrides
      */

@@ -27,11 +27,39 @@
                 @endif
 
                 @can('cancel', $order)
-                    <form method="POST" action="{{ route('orders.cancel', $order) }}"
-                          onsubmit="return confirm('Cancel this order and release the stock?');">
-                        @csrf
-                        <button type="submit" class="btn-danger">Cancel order</button>
-                    </form>
+                    <button type="button" class="btn-danger"
+                            x-on:click="$dispatch('open-modal', 'cancel-order')">
+                        Cancel order
+                    </button>
+
+                    <x-modal name="cancel-order" max-width="md" label="Cancel this order?">
+                        <div class="p-6">
+                            <div class="flex items-start gap-3">
+                                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-rose-50 text-rose-600">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <h2 class="font-display text-lg font-semibold text-slate-900">Cancel this order?</h2>
+                                    <p class="mt-1 text-sm text-slate-600">
+                                        We'll release the reserved stock and let the farmer know. This can't be undone.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                                <button type="button" class="btn-secondary"
+                                        x-on:click="$dispatch('close-modal', 'cancel-order')">
+                                    Keep order
+                                </button>
+                                <form method="POST" action="{{ route('orders.cancel', $order) }}">
+                                    @csrf
+                                    <button type="submit" class="btn-danger w-full">Yes, cancel order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </x-modal>
                 @endcan
             </div>
         </div>

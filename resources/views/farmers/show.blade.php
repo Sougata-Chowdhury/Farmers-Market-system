@@ -1,4 +1,5 @@
-<x-app-layout :title="$farmer->storefront_name.' — Farmer storefront'">
+<x-app-layout :title="$farmer->storefront_name.' — Farmer storefront'"
+               :description="\Illuminate\Support\Str::limit(strip_tags($farmer->farmerProfile?->bio ?: 'Fresh produce grown by '.$farmer->name.' in '.($farmer->farmerProfile?->location ?: $farmer->address ?: 'Bangladesh').'. Order direct from the farm.'), 155)">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <nav class="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
             <a href="{{ route('home') }}" class="hover:text-emerald-700">Shop</a>

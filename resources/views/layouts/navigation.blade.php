@@ -56,6 +56,7 @@
         <nav class="ml-auto hidden items-center gap-1 lg:flex">
             @foreach ($links as $link)
                 <a href="{{ route($link['route']) }}"
+                   @if (request()->routeIs($link['active'])) aria-current="page" @endif
                    @class([
                        'rounded-lg px-3 py-2 text-sm font-medium transition',
                        'bg-emerald-50 text-emerald-700' => request()->routeIs($link['active']),
@@ -73,7 +74,7 @@
                         <button type="button"
                                 class="relative inline-flex items-center rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-50"
                                 aria-label="Notifications">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                             </svg>
                             @if ($navUnread > 0)
@@ -124,7 +125,7 @@
                 @if ($navUser->isCustomer())
                     <a href="{{ route('wishlist.index') }}"
                        class="relative inline-flex items-center rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-50"
-                       aria-label="Wishlist">
+                       aria-label="Wishlist{{ $wishlistCount > 0 ? ' ('.$wishlistCount.' saved)' : '' }}">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg>
@@ -134,14 +135,18 @@
                     </a>
 
                     <a href="{{ route('cart.index') }}"
-                       class="relative inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                       x-on:click.prevent="$store.cart.open = true; $store.cart.ensureLoaded()"
+                       x-bind:aria-expanded="$store.cart.open ? 'true' : 'false'"
+                       class="relative inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                       aria-label="Open cart">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386a1.5 1.5 0 0 1 1.455 1.136L5.4 5.25m0 0 2.05 7.18a1.5 1.5 0 0 0 1.44 1.09h8.72a1.5 1.5 0 0 0 1.44-1.09L20.4 5.25H5.4Zm3.35 12.75a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Zm9 0a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" />
                         </svg>
                         <span class="hidden sm:inline">Cart</span>
-                        @if ($cartCount > 0)
-                            <span class="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-emerald-600 px-1 text-[11px] font-bold text-white">{{ $cartCount }}</span>
-                        @endif
+                        <span data-cart-count="{{ $cartCount }}"
+                              x-cloak x-show="$store.cart.count > 0"
+                              x-text="$store.cart.count > 99 ? '99+' : $store.cart.count"
+                              class="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-emerald-600 px-1 text-[11px] font-bold text-white">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
                     </a>
                 @endif
 
@@ -150,7 +155,7 @@
                         <button class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50">
                             <span class="grid h-7 w-7 place-items-center rounded-lg bg-emerald-600 text-xs font-bold text-white">{{ $navUser->initials }}</span>
                             <span class="hidden max-w-28 truncate sm:inline">{{ $navUser->name }}</span>
-                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7" />
                             </svg>
                         </button>
@@ -194,9 +199,10 @@
             @endguest
 
             <button type="button" @click="open = ! open"
+                    x-bind:aria-expanded="open ? 'true' : 'false'" aria-controls="mobile-navigation"
                     class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm lg:hidden"
                     aria-label="Toggle navigation">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                     <path x-show="! open" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     <path x-show="open" x-cloak stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
@@ -204,7 +210,7 @@
         </div>
     </div>
 
-    <div x-show="open" x-cloak class="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
+    <div id="mobile-navigation" x-show="open" x-cloak class="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
         <form action="{{ route('home') }}" method="GET" class="mb-3">
             <label for="mobile-search" class="sr-only">Search products</label>
             <input id="mobile-search" name="q" value="{{ request('q') }}" placeholder="Search fresh produce..." class="input">
@@ -213,6 +219,7 @@
         <div class="space-y-1">
             @foreach ($links as $link)
                 <a href="{{ route($link['route']) }}"
+                   @if (request()->routeIs($link['active'])) aria-current="page" @endif
                    @class([
                        'block rounded-lg px-3 py-2 text-sm font-medium',
                        'bg-emerald-50 text-emerald-700' => request()->routeIs($link['active']),
@@ -221,6 +228,15 @@
                     {{ $link['label'] }}
                 </a>
             @endforeach
+
+            @if ($navUser?->isCustomer())
+                <a href="{{ route('wishlist.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    Wishlist{{ $wishlistCount > 0 ? ' ('.$wishlistCount.')' : '' }}
+                </a>
+                <a href="{{ route('cart.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                    Cart{{ $cartCount > 0 ? ' ('.$cartCount.')' : '' }}
+                </a>
+            @endif
 
             @guest
                 <a href="{{ route('login') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Log in</a>

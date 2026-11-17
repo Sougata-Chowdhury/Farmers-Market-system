@@ -31,6 +31,13 @@ class CartController extends Controller
         ]);
     }
 
+    public function mini(Request $request): JsonResponse
+    {
+        $state = $this->state($request);
+
+        return response()->json($this->payload('Cart loaded.', $state));
+    }
+
     public function store(Request $request, Product $product): JsonResponse|RedirectResponse
     {
         $data = $request->validate([
@@ -65,10 +72,23 @@ class CartController extends Controller
         $state = $this->state($request);
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => $message, 'coupon' => $state['coupon']?->code] + $state['totals']);
+            return response()->json($this->payload($message, $state));
         }
 
         return back()->with('status', $message);
+    }
+
+    /**
+     * @param  array{items: Collection<int, Cart>, coupon: ?Coupon, totals: array{subtotal: float, discount: float, fee: float, total: float, count: int}}  $state
+     * @return array<string, mixed>
+     */
+    private function payload(string $message, array $state): array
+    {
+        return [
+            'message' => $message,
+            'coupon' => $state['coupon']?->code,
+            'html' => view('cart._mini', $state)->render(),
+        ] + $state['totals'];
     }
 
     /**

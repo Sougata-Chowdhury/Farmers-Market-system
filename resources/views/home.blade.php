@@ -1,4 +1,5 @@
-<x-app-layout title="Fresh produce from local farms">
+<x-app-layout title="Fresh produce from local farms"
+               description="Shop farm-fresh vegetables, fruit, fish, rice and dairy from verified Bangladeshi farmers. Transparent pricing, a flat platform fee and delivery to your door.">
     <section class="relative overflow-hidden bg-emerald-900 text-white">
         <div class="pointer-events-none absolute -left-20 -top-24 h-80 w-80 rounded-full bg-emerald-500/25 blur-3xl"></div>
         <div class="pointer-events-none absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-lime-400/20 blur-3xl"></div>
@@ -72,9 +73,31 @@
         </div>
     </section>
 
-    <section id="catalogue" class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div class="mb-3 flex -mx-1 gap-2 overflow-x-auto px-1 pb-1">
-            <a href="{{ route('home', ['q' => $filters['q'] ?: null]) }}"
+    <section id="catalogue" class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+             x-data="{ filtersOpen: false }" x-on:keydown.escape.window="filtersOpen = false">
+        @php
+            $activeFilters = ($filters['q'] !== '' ? 1 : 0) + ($filters['category'] !== '' ? 1 : 0) + ($filters['sort'] !== 'newest' ? 1 : 0);
+            $currentCategory = $filters['category'] ? $categories->firstWhere('slug', $filters['category']) : null;
+        @endphp
+
+        <div class="mb-3 flex items-center justify-between gap-3 sm:hidden">
+            <button type="button" x-on:click="filtersOpen = true"
+                    x-bind:aria-expanded="filtersOpen ? 'true' : 'false'" aria-haspopup="dialog"
+                    class="btn-secondary py-2">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M6 12h12M10 18h4" />
+                </svg>
+                Filters
+                @if ($activeFilters > 0)
+                    <span class="rounded-full bg-emerald-600 px-1.5 text-[11px] font-bold text-white">{{ $activeFilters }}</span>
+                @endif
+            </button>
+            <p class="truncate text-sm text-slate-500">{{ $currentCategory?->name ?? 'All produce' }}</p>
+        </div>
+
+        <div class="mb-3 hidden -mx-1 gap-2 overflow-x-auto px-1 pb-1 sm:flex">
+            <a href="{{ route('home', array_filter(['q' => $filters['q'] ?: null, 'sort' => $filters['sort'] !== 'newest' ? $filters['sort'] : null])) }}"
+               @if ($filters['category'] === '') aria-current="page" @endif
                @class([
                    'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition',
                    'border-emerald-600 bg-emerald-600 text-white' => $filters['category'] === '',
@@ -83,7 +106,8 @@
                 All produce
             </a>
             @foreach ($categories as $category)
-                <a href="{{ route('home', array_filter(['q' => $filters['q'] ?: null, 'category' => $category->slug])) }}"
+                <a href="{{ route('home', array_filter(['q' => $filters['q'] ?: null, 'category' => $category->slug, 'sort' => $filters['sort'] !== 'newest' ? $filters['sort'] : null])) }}"
+                   @if ($filters['category'] === $category->slug) aria-current="page" @endif
                    @class([
                        'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition',
                        'border-emerald-600 bg-emerald-600 text-white' => $filters['category'] === $category->slug,
@@ -97,6 +121,87 @@
                     ])>{{ $category->products_count }}</span>
                 </a>
             @endforeach
+        </div>
+
+        <div x-cloak x-show="filtersOpen" class="fixed inset-0 z-50 sm:hidden" role="dialog" aria-modal="true" aria-label="Filter produce">
+            <div x-show="filtersOpen" x-transition.opacity
+                 class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                 x-on:click="filtersOpen = false"></div>
+
+            <div x-show="filtersOpen"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="translate-y-full"
+                 x-transition:enter-end="translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="translate-y-0"
+                 x-transition:leave-end="translate-y-full"
+                 class="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="font-display text-lg font-semibold text-slate-900">Filter produce</h2>
+                    <button type="button" x-on:click="filtersOpen = false"
+                            class="grid h-9 w-9 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                            aria-label="Close filters">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <p class="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Category</p>
+                <div class="mt-2 grid gap-1">
+                    <a href="{{ route('home', array_filter(['q' => $filters['q'] ?: null, 'sort' => $filters['sort'] !== 'newest' ? $filters['sort'] : null])) }}"
+                       x-on:click="filtersOpen = false"
+                       @class([
+                           'flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition',
+                           'bg-emerald-50 text-emerald-700' => $filters['category'] === '',
+                           'text-slate-600 hover:bg-slate-50' => $filters['category'] !== '',
+                       ])>
+                        All produce
+                        @if ($filters['category'] === '')
+                            <span class="text-emerald-600" aria-hidden="true">&check;</span>
+                        @endif
+                    </a>
+                    @foreach ($categories as $category)
+                        <a href="{{ route('home', array_filter(['q' => $filters['q'] ?: null, 'category' => $category->slug, 'sort' => $filters['sort'] !== 'newest' ? $filters['sort'] : null])) }}"
+                           x-on:click="filtersOpen = false"
+                           @class([
+                               'flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition',
+                               'bg-emerald-50 text-emerald-700' => $filters['category'] === $category->slug,
+                               'text-slate-600 hover:bg-slate-50' => $filters['category'] !== $category->slug,
+                           ])>
+                            <span>{{ $category->name }}</span>
+                            <span class="flex items-center gap-2 text-xs text-slate-400">
+                                {{ $category->products_count }}
+                                @if ($filters['category'] === $category->slug)
+                                    <span class="text-emerald-600" aria-hidden="true">&check;</span>
+                                @endif
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+
+                <form method="GET" action="{{ route('home') }}" class="mt-5 space-y-3 border-t border-slate-100 pt-5">
+                    @if ($filters['q'])
+                        <input type="hidden" name="q" value="{{ $filters['q'] }}">
+                    @endif
+                    @if ($filters['category'])
+                        <input type="hidden" name="category" value="{{ $filters['category'] }}">
+                    @endif
+
+                    <label for="mobile-sort" class="label">Sort by</label>
+                    <select id="mobile-sort" name="sort" class="input">
+                        <option value="newest" @selected($filters['sort'] === 'newest')>Newest first</option>
+                        <option value="price_asc" @selected($filters['sort'] === 'price_asc')>Price: low to high</option>
+                        <option value="price_desc" @selected($filters['sort'] === 'price_desc')>Price: high to low</option>
+                        <option value="rating" @selected($filters['sort'] === 'rating')>Top rated</option>
+                    </select>
+
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="btn-primary flex-1">Show results</button>
+                        <a href="{{ route('home') }}" class="btn-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="mt-6 flex flex-wrap items-end justify-between gap-4">

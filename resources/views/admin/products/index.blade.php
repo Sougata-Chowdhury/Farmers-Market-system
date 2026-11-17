@@ -95,12 +95,33 @@
                                                         {{ $product->is_active ? 'Hide' : 'Publish' }}
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
-                                                      onsubmit="return confirm('Remove this listing? Order history is preserved.');">
+                                                <form id="remove-product-{{ $product->id }}" method="POST" action="{{ route('admin.products.destroy', $product) }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-sm font-medium text-rose-600 hover:underline">Remove</button>
+                                                    <button type="button" class="text-sm font-medium text-rose-600 hover:underline"
+                                                            x-on:click="$dispatch('open-modal', 'remove-product-{{ $product->id }}')">
+                                                        Remove
+                                                    </button>
                                                 </form>
+
+                                                <x-modal name="remove-product-{{ $product->id }}" max-width="md" label="Remove this listing?">
+                                                    <div class="p-6">
+                                                        <h2 class="font-display text-lg font-semibold text-slate-900">Remove this listing?</h2>
+                                                        <p class="mt-2 text-sm text-slate-600">
+                                                            <span class="font-medium text-slate-900">{{ $product->name }}</span> will disappear from the marketplace.
+                                                            Past orders keep their records.
+                                                        </p>
+                                                        <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                                                            <button type="button" class="btn-secondary"
+                                                                    x-on:click="$dispatch('close-modal', 'remove-product-{{ $product->id }}')">
+                                                                Keep listing
+                                                            </button>
+                                                            <button type="submit" form="remove-product-{{ $product->id }}" class="btn-danger">
+                                                                Remove listing
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </x-modal>
                                             @endif
                                         </div>
                                     </td>

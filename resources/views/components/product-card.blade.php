@@ -64,7 +64,7 @@
 
         @auth
             @if (auth()->user()->isCustomer())
-                <form method="POST" action="{{ route('cart.store', $product) }}">
+                <form method="POST" action="{{ route('cart.store', $product) }}" data-ajax-cart>
                     @csrf
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit" class="btn-primary w-full" @disabled(! $product->inStock())>

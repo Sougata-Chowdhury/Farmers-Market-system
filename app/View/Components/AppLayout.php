@@ -7,7 +7,13 @@ use Illuminate\View\View;
 
 class AppLayout extends Component
 {
-    public function __construct(public ?string $title = null) {}
+    public function __construct(
+        public ?string $title = null,
+        public ?string $description = null,
+        public ?string $image = null,
+        public string $type = 'website',
+        public bool $noindex = false,
+    ) {}
 
     /**
      * Get the view / contents that represents the component.

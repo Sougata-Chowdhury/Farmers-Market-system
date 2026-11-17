@@ -25,12 +25,16 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/farmers/{farmer:slug}', [FarmerStorefrontController::class, 'show'])->name('farmers.show');
+
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -52,6 +56,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart/mini', [CartController::class, 'mini'])->name('cart.mini');
     Route::post('/cart/{product}', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');

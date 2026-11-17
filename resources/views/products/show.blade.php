@@ -1,5 +1,39 @@
-<x-app-layout :title="$product->name">
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+<x-app-layout :title="$product->name"
+               :description="\Illuminate\Support\Str::limit(strip_tags($product->description ?: $product->name.' from '.$product->farmer->storefront_name), 155)"
+               :image="$product->image_url"
+               type="product">
+    @push('meta')
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'Product',
+                'name' => $product->name,
+                'description' => \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 300),
+                'image' => $product->image_url,
+                'sku' => 'product-'.$product->id,
+                'category' => $product->category?->name,
+                'offers' => [
+                    '@type' => 'Offer',
+                    'price' => (float) $product->price,
+                    'priceCurrency' => config('marketplace.currency.code', 'BDT'),
+                    'availability' => $product->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                    'url' => route('products.show', $product),
+                ],
+                'brand' => [
+                    '@type' => 'Brand',
+                    'name' => $product->farmer?->storefront_name ?? config('app.name'),
+                ],
+                ...($product->reviews_count > 0 ? [
+                    'aggregateRating' => [
+                        '@type' => 'AggregateRating',
+                        'ratingValue' => round((float) $product->average_rating, 1),
+                        'reviewCount' => (int) $product->reviews_count,
+                    ],
+                ] : []),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+        </script>
+    @endpush
+    <div class="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8 lg:pb-8">
         <nav class="mb-6 flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
             <a href="{{ route('home') }}" class="hover:text-emerald-700">Shop</a>
             <span aria-hidden="true">/</span>
@@ -98,7 +132,7 @@
                             @php($savedToWishlist = $wishlist->has(request(), $product))
 
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <form method="POST" action="{{ route('cart.store', $product) }}" class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+                                <form id="buy-form" method="POST" action="{{ route('cart.store', $product) }}" data-ajax-cart class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
                                     @csrf
                                     <div class="flex items-center rounded-xl border border-slate-300 bg-white shadow-sm">
                                         <label for="quantity" class="px-3 text-sm font-medium text-slate-600">Qty</label>
@@ -252,4 +286,27 @@
             </section>
         @endif
     </div>
+
+    @auth
+        @if (auth()->user()->isCustomer())
+            <div class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden"
+                 role="region" aria-label="Quick purchase">
+                <div class="flex items-center gap-3">
+                    <img src="{{ $images[0]['thumb'] }}" alt=""
+                         onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';"
+                         class="h-11 w-11 shrink-0 rounded-lg object-cover ring-1 ring-slate-200">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-semibold text-slate-900">{{ $product->name }}</p>
+                        <p class="text-sm text-slate-500">
+                            <x-money :value="$product->price" />
+                            <span class="text-xs">/ {{ $product->unit }}</span>
+                        </p>
+                    </div>
+                    <button type="submit" form="buy-form" class="btn-primary shrink-0" @disabled(! $product->inStock())>
+                        {{ $product->inStock() ? 'Add to cart' : 'Sold out' }}
+                    </button>
+                </div>
+            </div>
+        @endif
+    @endauth
 </x-app-layout>

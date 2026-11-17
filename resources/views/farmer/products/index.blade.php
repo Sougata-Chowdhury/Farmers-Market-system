@@ -64,12 +64,33 @@
                                         <div class="flex items-center justify-end gap-3">
                                             <a href="{{ route('products.show', $product) }}" class="text-sm font-medium text-slate-500 hover:text-slate-900">View</a>
                                             <a href="{{ route('farmer.products.edit', $product) }}" class="text-sm font-semibold text-emerald-700 hover:underline">Edit</a>
-                                            <form method="POST" action="{{ route('farmer.products.destroy', $product) }}"
-                                                  onsubmit="return confirm('Remove this product from the marketplace?');">
+                                            <form id="delete-product-{{ $product->id }}" method="POST" action="{{ route('farmer.products.destroy', $product) }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-sm font-medium text-rose-600 hover:underline">Delete</button>
+                                                <button type="button" class="text-sm font-medium text-rose-600 hover:underline"
+                                                        x-on:click="$dispatch('open-modal', 'delete-product-{{ $product->id }}')">
+                                                    Delete
+                                                </button>
                                             </form>
+
+                                            <x-modal name="delete-product-{{ $product->id }}" max-width="md" label="Remove this product?">
+                                                <div class="p-6">
+                                                    <h2 class="font-display text-lg font-semibold text-slate-900">Remove this product?</h2>
+                                                    <p class="mt-2 text-sm text-slate-600">
+                                                        <span class="font-medium text-slate-900">{{ $product->name }}</span> will be hidden from customers.
+                                                        Existing orders are unaffected, but you can't undo this from here.
+                                                    </p>
+                                                    <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                                                        <button type="button" class="btn-secondary"
+                                                                x-on:click="$dispatch('close-modal', 'delete-product-{{ $product->id }}')">
+                                                            Keep product
+                                                        </button>
+                                                        <button type="submit" form="delete-product-{{ $product->id }}" class="btn-danger">
+                                                            Delete product
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </x-modal>
                                         </div>
                                     </td>
                                 </tr>
