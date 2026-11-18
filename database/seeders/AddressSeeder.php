@@ -9,45 +9,46 @@ use Illuminate\Database\Seeder;
 class AddressSeeder extends Seeder
 {
     /**
-     * Give the demo customer a couple of saved delivery addresses.
+     * Give every demo customer at least one saved delivery address. The main
+     * customer also gets an office address so checkout can show a choice.
      */
     public function run(): void
     {
-        $customer = User::where('email', 'customer@farmersmarket.test')->first();
+        /** @var array<int, array<string, mixed>> $customers */
+        $customers = require database_path('seeders/data/customers.php');
 
-        if (! $customer) {
-            $this->command?->warn('Demo customer missing. Run DemoUsersSeeder first.');
+        foreach ($customers as $index => $customer) {
+            $user = User::where('email', $customer['email'])->first();
 
-            return;
-        }
+            if (! $user) {
+                continue;
+            }
 
-        $addresses = [
-            [
-                'label' => 'Home',
-                'recipient_name' => 'Nusrat Jahan',
-                'phone' => '01712345678',
-                'address_line' => 'House 12, Road 5, Dhanmondi',
-                'area' => 'Dhaka 1205',
-                'is_default' => true,
-            ],
-            [
-                'label' => 'Office',
-                'recipient_name' => 'Nusrat Jahan',
-                'phone' => '01712345678',
-                'address_line' => 'Level 8, Concord Tower, Gulshan 1',
-                'area' => 'Dhaka 1212',
-                'is_default' => false,
-            ],
-        ];
-
-        foreach ($addresses as $attributes) {
             Address::updateOrCreate(
+                ['user_id' => $user->id, 'label' => 'Home'],
                 [
-                    'user_id' => $customer->id,
-                    'label' => $attributes['label'],
-                ],
-                $attributes
+                    'recipient_name' => $user->name,
+                    'phone' => $customer['phone'],
+                    'address_line' => $customer['address_line'],
+                    'area' => $customer['area'],
+                    'is_default' => true,
+                ]
             );
+
+            if ($index === 0) {
+                Address::updateOrCreate(
+                    ['user_id' => $user->id, 'label' => 'Office'],
+                    [
+                        'recipient_name' => $user->name,
+                        'phone' => $customer['phone'],
+                        'address_line' => 'Level 8, Concord Tower, Gulshan 1',
+                        'area' => 'Dhaka 1212',
+                        'is_default' => false,
+                    ]
+                );
+            }
         }
+
+        $this->command?->info('Seeded saved delivery addresses for every customer.');
     }
 }

@@ -8,4 +8,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        watch: {
+            // Blade compiles land in storage/ and are locked mid-write on Windows.
+            ignored: ['**/storage/**', '**/vendor/**', '**/node_modules/**'],
+        },
+    },
 });

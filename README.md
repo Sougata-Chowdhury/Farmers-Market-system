@@ -1,10 +1,10 @@
 # Farmers Market
 
-### A polished Laravel 12 marketplace for local farm produce
+### A warm, print-inspired Laravel 12 marketplace for local farm produce
 
-Farmers Market is a portfolio-ready rewrite of a legacy farming inventory application. It turns a basic catalogue into a complete multi-role marketplace where customers discover fresh produce, farmers manage their storefronts, and admins operate the platform.
+Farmers Market is a portfolio-ready rewrite of a legacy farming inventory application. It turns a basic catalogue into a complete multi-role marketplace where customers discover fresh produce, farmers manage their storefronts, and admins operate the platform. The interface now follows a warm market-ledger direction: paper textures, ink-like borders, taped notes, hand-drawn accents and practical dashboard layouts instead of a generic polished SaaS aesthetic.
 
-![Farmers Market home page](docs/screenshots/home.png)
+![Farmers Market home page showing the warm paper-and-ink market-ledger design](docs/screenshots/home.png)
 
 [![Laravel](https://img.shields.io/badge/Laravel-12-ff2d20?logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
@@ -13,17 +13,17 @@ Farmers Market is a portfolio-ready rewrite of a legacy farming inventory applic
 
 ## Product tour
 
-| Storefront | Product detail |
+| Market storefront | Product detail with a real matching produce image |
 | --- | --- |
-| ![Storefront](docs/screenshots/home.png) | ![Product detail](docs/screenshots/product.png) |
+| ![Market storefront](docs/screenshots/home.png) | ![Product detail](docs/screenshots/product.png) |
 
-| Customer orders | Farmer dashboard |
+| Customer order ledger | Farmer sales ledger |
 | --- | --- |
-| ![Customer orders](docs/screenshots/customer-orders.png) | ![Farmer dashboard](docs/screenshots/farmer-dashboard.png) |
+| ![Customer order ledger](docs/screenshots/customer-orders.png) | ![Farmer sales ledger](docs/screenshots/farmer-dashboard.png) |
 
-| Admin dashboard | Sign in |
+| Admin market office | Sign in |
 | --- | --- |
-| ![Admin dashboard](docs/screenshots/admin-dashboard.png) | ![Login](docs/screenshots/login.png) |
+| ![Admin market office dashboard](docs/screenshots/admin-dashboard.png) | ![Farmers Market sign in](docs/screenshots/login.png) |
 
 ## What is included
 
@@ -35,6 +35,7 @@ Farmers Market is a portfolio-ready rewrite of a legacy farming inventory applic
 - Session wishlist, recently viewed products and one-click **Buy again** reorder.
 - Stock-aware cart with AJAX add, update and remove actions.
 - Live mini-cart drawer, item badge and toast feedback without a page reload.
+- Clear empty states, order status badges, timeline history and friendly success/error feedback.
 - Checkout with saved addresses, optional new address creation and payment method selection.
 - Coupon codes with validation, discount limits and transactional usage tracking.
 - Order timeline, cancellation rules, email notifications and in-app notifications.
@@ -48,8 +49,9 @@ Farmers Market is a portfolio-ready rewrite of a legacy farming inventory applic
 - Dashboard with 30-day sales chart, earnings, best sellers and low-stock alerts.
 - Product create/edit workflow with up to five JPG, PNG or WebP gallery uploads.
 - Spatie Media Library conversions: `thumb`, `card` and `full`, generated as WebP.
+- Seed-safe catalogue imagery: photos are only attached to matching produce; other products receive category-specific illustrated paper placeholders.
 - Product ownership policies and farmer-only order visibility.
-- Sales and catalogue CSV exports.
+- Sales and catalogue CSV exports with browser downloads, filename handling and visible success/error feedback.
 - Storefront profile and payout details.
 
 ### Admin workspace
@@ -58,18 +60,20 @@ Farmers Market is a portfolio-ready rewrite of a legacy farming inventory applic
 - 30-day revenue chart, order status donut and top category analysis.
 - Product moderation with hide, publish, soft-delete and restore actions.
 - Customer, farmer, coupon and order management.
-- Platform-wide order and product CSV exports.
+- Platform-wide order and product CSV exports with the same reliable download flow.
 - Low-stock email digest support and notification centre.
 
 ### Platform polish
 
+- Market-ledger design system: warm paper, ink, forest and clay tones, slab-serif display type, print-style offset shadows and paper grain.
 - Breeze authentication with role-based access and policies.
 - Transactional checkout with row locks, stock revalidation and status history.
 - Accessible modal confirmations instead of browser `confirm()` dialogs.
 - Skip link, live regions, keyboard-friendly dropdowns, labels and ARIA state.
 - Canonical URLs, Open Graph/Twitter cards, Product JSON-LD, sitemap and robots routes.
 - Mailpit-ready local email workflow.
-- Seeded Bangladeshi produce catalogue with local WebP assets.
+- Expanded seeded market: 18 farmers, 24 customers, 100 products across six categories, 163 demo orders, 405 order lines, 431 status-history records, 164 reviews and saved delivery addresses.
+- Reproducible demo activity covering 120 days of orders, delivered/confirmed/pending/cancelled statuses, payment methods, coupons and review history.
 
 ## Why this rewrite
 
@@ -87,14 +91,14 @@ The original application is preserved in [`legacy/`](legacy/) for comparison. Th
 
 ## Tech stack
 
-- **Backend:** Laravel 12, PHP 8.2+, MySQL 8 / MariaDB
+- **Backend:** Laravel 12, PHP 8.2+, SQLite for the included local setup; MySQL 8 / MariaDB also supported
 - **Frontend:** Blade, Tailwind CSS, Alpine.js, Vite
 - **Authentication:** Laravel Breeze
 - **Media:** Spatie Laravel Media Library, GD/WebP
 - **Documents:** Dompdf and QR Code generation
 - **Email:** Laravel Mail with Mailpit for local development
 - **Testing:** PHPUnit 11, Laravel feature tests
-- **Local development:** Laravel Sail / Docker or local PHP and MySQL
+- **Local development:** Laravel Sail / Docker, or local PHP with SQLite/MySQL/MariaDB
 
 ## Quick start
 
@@ -117,17 +121,15 @@ Open <http://localhost>. Mailpit is available at <http://localhost:8025>.
 
 On Windows PowerShell, use `vendor\\bin\\sail` instead of `./vendor/bin/sail`.
 
-### Option B: Local PHP and MySQL/MariaDB
+### Option B: Local PHP with SQLite (included setup)
 
-Requirements: PHP 8.2+ with `pdo_mysql`, `gd`, `exif`, `intl` and `zip`, Composer, Node.js, and MySQL/MariaDB.
+Requirements: PHP 8.2+ with `pdo_sqlite`, `gd`, `exif`, `intl` and `zip`, Composer, and Node.js. The repository's local `.env` uses SQLite so no database service is required. To use MySQL/MariaDB instead, configure the database variables in `.env` before migrating.
 
 ```bash
 composer install
 copy .env.example .env
 php artisan key:generate
 ```
-
-Configure the database in `.env`, then run:
 
 ```bash
 php artisan migrate --seed
@@ -152,7 +154,7 @@ All seeded accounts use the password `password`.
 | Farmer | `ayesha@farmersmarket.test` |
 | Customer | `customer@farmersmarket.test` |
 
-Seeded coupon codes include `FRESH10`, `FLAT50` and `BULK15`.
+The demo seed creates 18 farmers, 24 customers, 100 products across Vegetables, Fruits, Fish, Meat, Rice and Dairy, plus 163 realistic orders and supporting timelines/reviews. Seeded coupon codes include `FRESH10`, `FLAT50` and `BULK15`.
 
 ## Useful commands
 
@@ -169,19 +171,20 @@ npm run build
 # Inspect routes
 php artisan route:list
 
-# Rebuild the database and demo catalogue
+# Rebuild the database, demo catalogue and marketplace activity
 php artisan migrate:fresh --seed
 ```
 
 ## Quality
 
-The current Tier 4 baseline is green:
+The current baseline is green:
 
 - **142 tests passing**
 - **487 assertions**
 - Laravel Pint clean
 - Vite production build successful
-- Browser homepage smoke check completed with no console errors
+- Browser smoke checks completed for the storefront, product detail, customer orders, farmer dashboard and admin dashboard
+- README screenshots regenerated from the current seeded application
 
 The feature suite covers authentication, role access, carts, AJAX cart payloads, coupons, checkout, stock control, order history, notifications, invoices, addresses, wishlist, reorder, media galleries, dashboards, CSV exports and SEO routes.
 

@@ -4,12 +4,20 @@
             <a href="{{ route('dashboard') }}" class="btn-secondary">Back to dashboard</a>
         </x-page-header>
 
-        <div class="mt-6 space-y-6">
-            <section class="card p-5 sm:p-6">
-                <h2 class="font-display text-lg font-semibold text-slate-900">Profile information</h2>
-                <p class="mt-1 text-sm text-slate-500">Used for deliveries and account notifications.</p>
+        <div class="mt-8 space-y-8">
+            <section class="card p-5 sm:p-7">
+                <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-dashed border-line-dark pb-3">
+                    <div>
+                        <p class="eyebrow">File card</p>
+                        <h2 class="mt-1 font-display text-xl font-semibold text-ink">Profile information</h2>
+                    </div>
+                    <span class="tag">Used for deliveries</span>
+                </div>
+                <p class="mt-3 max-w-prose text-sm leading-relaxed text-ink-soft">
+                    Keep this current so orders, receipts and account notices reach the right person.
+                </p>
 
-                <form method="POST" action="{{ route('profile.update') }}" class="mt-5 grid gap-4 sm:grid-cols-2">
+                <form method="POST" action="{{ route('profile.update') }}" class="mt-6 grid gap-5 sm:grid-cols-2">
                     @csrf
                     @method('patch')
 
@@ -37,7 +45,7 @@
                         @error('address') <p class="field-error">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="sm:col-span-2">
+                    <div class="sm:col-span-2 border-t border-dashed border-line pt-5">
                         <button type="submit" class="btn-primary">Save changes</button>
                     </div>
                 </form>
@@ -46,11 +54,12 @@
             @if ($user->isCustomer())
                 @php($defaultAddress = $user->defaultAddress())
 
-                <section class="card p-5 sm:p-6">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                <section class="card p-5 sm:p-7">
+                    <div class="flex flex-wrap items-end justify-between gap-3 border-b border-dashed border-line-dark pb-3">
                         <div>
-                            <h2 class="font-display text-lg font-semibold text-slate-900">Delivery addresses</h2>
-                            <p class="mt-1 text-sm text-slate-500">
+                            <p class="eyebrow">Delivery ledger</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Delivery addresses</h2>
+                            <p class="mt-1 font-mono text-[11px] uppercase tracking-label text-ink-soft">
                                 {{ $user->addresses()->count() }} saved
                                 @if ($defaultAddress)
                                     &middot; default is {{ $defaultAddress->label }}
@@ -61,26 +70,35 @@
                     </div>
 
                     @if ($defaultAddress)
-                        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
-                            <p class="font-semibold text-slate-900">{{ $defaultAddress->label }}</p>
-                            <p class="mt-1 text-slate-600">
+                        <div class="mt-5 rounded-md border border-line bg-paper-light p-4 text-sm">
+                            <p class="flex items-center gap-2 font-display text-base font-semibold text-ink">
+                                {{ $defaultAddress->label }}
+                                <span class="stamp stamp-green !px-2 !py-0.5 !text-[9px]">Default</span>
+                            </p>
+                            <p class="mt-2 leading-relaxed text-ink-soft">
                                 {{ $defaultAddress->recipient_name }} &middot; {{ $defaultAddress->phone }}<br>
                                 {{ $defaultAddress->address_line }}@if ($defaultAddress->area), {{ $defaultAddress->area }}@endif
                             </p>
                         </div>
                     @else
-                        <p class="mt-4 text-sm text-slate-500">
+                        <p class="mt-5 text-sm text-ink-soft">
                             Add an address to check out faster next time.
+                            <a href="{{ route('addresses.index') }}" class="link">Add one now</a>.
                         </p>
                     @endif
                 </section>
             @endif
 
-            <section class="card p-5 sm:p-6">
-                <h2 class="font-display text-lg font-semibold text-slate-900">Change password</h2>
-                <p class="mt-1 text-sm text-slate-500">Use a long password you don't reuse anywhere else.</p>
+            <section class="card p-5 sm:p-7">
+                <div class="border-b border-dashed border-line-dark pb-3">
+                    <p class="eyebrow">Security</p>
+                    <h2 class="mt-1 font-display text-xl font-semibold text-ink">Change password</h2>
+                </div>
+                <p class="mt-3 max-w-prose text-sm leading-relaxed text-ink-soft">
+                    Use a long password you don't reuse anywhere else.
+                </p>
 
-                <form method="POST" action="{{ route('password.update') }}" class="mt-5 grid gap-4 sm:grid-cols-3">
+                <form method="POST" action="{{ route('password.update') }}" class="mt-6 grid gap-5 sm:grid-cols-3">
                     @csrf
                     @method('put')
 
@@ -105,26 +123,30 @@
                         <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" class="input mt-1">
                     </div>
 
-                    <div class="sm:col-span-3">
+                    <div class="sm:col-span-3 border-t border-dashed border-line pt-5">
                         <button type="submit" class="btn-primary">Update password</button>
                     </div>
                 </form>
             </section>
 
-            <section class="rounded-2xl border border-rose-200 bg-rose-50 p-5 sm:p-6">
-                <h2 class="font-display text-lg font-semibold text-rose-900">Delete account</h2>
-                <p class="mt-1 text-sm text-rose-700">
+            <section class="rounded-lg border-2 border-dashed border-clay-300 bg-clay-50/60 p-5 sm:p-7">
+                <div class="flex flex-wrap items-center gap-3">
+                    <p class="eyebrow !text-clay-700">Handle with care</p>
+                    <span class="stamp !text-[9px]">Permanent</span>
+                </div>
+                <h2 class="mt-2 font-display text-xl font-semibold text-clay-800">Delete account</h2>
+                <p class="mt-2 max-w-prose text-sm leading-relaxed text-clay-700">
                     This permanently removes your account. Orders you placed stay in the system for farmers' records.
                 </p>
 
-                <form id="delete-account-form" method="POST" action="{{ route('profile.destroy') }}" class="mt-4 flex flex-wrap items-end gap-3">
+                <form id="delete-account-form" method="POST" action="{{ route('profile.destroy') }}" class="mt-5 flex flex-wrap items-end gap-3">
                     @csrf
                     @method('delete')
 
                     <div class="w-full sm:w-64">
-                        <label for="delete_password" class="label !text-rose-900">Confirm with your password</label>
+                        <label for="delete_password" class="label !text-clay-800">Confirm with your password</label>
                         <input id="delete_password" name="password" type="password" autocomplete="current-password"
-                               class="input mt-1 border-rose-300 focus:border-rose-500 focus:ring-rose-500">
+                               class="input mt-1 border-clay-300 bg-white focus:border-clay-500 focus:ring-clay-500">
                         @foreach ($errors->get('password') as $message)
                             <p class="field-error">{{ $message }}</p>
                         @endforeach
@@ -138,14 +160,15 @@
                 <x-modal name="delete-account" max-width="md" label="Delete your account?">
                     <div class="p-6">
                         <div class="flex items-start gap-3">
-                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-rose-50 text-rose-600">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-sm border border-clay-300 bg-clay-50 text-clay-700">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                 </svg>
                             </span>
                             <div>
-                                <h2 class="font-display text-lg font-semibold text-slate-900">Delete your account?</h2>
-                                <p class="mt-1 text-sm text-slate-600">
+                                <p class="eyebrow !text-clay-700">Please confirm</p>
+                                <h2 class="mt-1 font-display text-lg font-semibold text-ink">Delete your account?</h2>
+                                <p class="mt-2 text-sm leading-relaxed text-ink-soft">
                                     This permanently removes your profile, addresses and saved items. Past orders stay with the farmers who fulfilled them.
                                 </p>
                             </div>

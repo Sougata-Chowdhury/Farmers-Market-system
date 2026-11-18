@@ -24,15 +24,16 @@
         @endif
 
         @if ($recentlyViewed->isNotEmpty())
-            <section class="mt-12 border-t border-slate-200 pt-8">
+            <section class="mt-14 border-t-2 border-ink pt-8">
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h2 class="font-display text-2xl font-semibold tracking-tight text-slate-900">Recently viewed</h2>
-                        <p class="mt-1 text-sm text-slate-500">The last few products you looked at.</p>
+                        <p class="eyebrow">Just browsing</p>
+                        <h2 class="mt-1 font-display text-3xl font-semibold tracking-tight">Recently viewed</h2>
+                        <p class="mt-1 text-sm text-ink-soft">The last few products you looked at.</p>
                     </div>
                 </div>
 
-                <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div class="mt-6 grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     @foreach ($recentlyViewed as $recentProduct)
                         <x-product-card :product="$recentProduct" />
                     @endforeach

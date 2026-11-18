@@ -1,10 +1,13 @@
 <x-app-layout title="All orders">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p class="eyebrow mb-2">The order book</p>
         <x-page-header title="All orders" subtitle="Search, filter and progress customer orders.">
-            <a href="{{ route('admin.exports.orders') }}" class="btn-secondary">Export CSV</a>
+            <a href="{{ route('admin.exports.orders') }}" class="btn-secondary" data-csv-export data-filename="orders.csv" download>Export CSV</a>
         </x-page-header>
 
-        <form method="GET" action="{{ route('admin.orders.index') }}" class="mt-6 flex flex-wrap items-end gap-3">
+        <form method="GET" action="{{ route('admin.orders.index') }}" class="card mt-6 flex flex-wrap items-end gap-3 p-4">
+            <p class="eyebrow w-full">Filter the ledger</p>
+
             <div>
                 <label for="q" class="label">Search</label>
                 <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Order #, name or email"
@@ -23,7 +26,7 @@
 
             <button type="submit" class="btn-primary">Apply</button>
             @if (($filters['q'] ?? '') || ($filters['status'] ?? ''))
-                <a href="{{ route('admin.orders.index') }}" class="text-sm text-slate-500 hover:text-slate-900">Reset</a>
+                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-1 py-2.5 font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint transition hover:text-clay-600">Reset</a>
             @endif
         </form>
 
@@ -33,6 +36,14 @@
             </div>
         @else
             <div class="card mt-6 overflow-hidden">
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Every order, in sequence</p>
+                        <h2 class="mt-1 font-display text-xl font-semibold text-ink">Order ledger</h2>
+                    </div>
+                    <span class="tag">{{ number_format($orders->total()) }} {{ \Illuminate\Support\Str::plural('entry', $orders->total()) }}</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="table-base">
                         <thead>
@@ -49,17 +60,19 @@
                         <tbody>
                             @foreach ($orders as $order)
                                 <tr>
-                                    <td class="font-semibold text-slate-900">#{{ $order->id }}</td>
                                     <td>
-                                        <p class="font-medium text-slate-900">{{ $order->user?->name }}</p>
-                                        <p class="text-xs text-slate-500">{{ $order->user?->email }}</p>
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="font-mono text-sm font-bold text-clay-700 hover:underline">#{{ $order->id }}</a>
                                     </td>
-                                    <td class="text-slate-500">{{ $order->placed_at->format('d M Y, H:i') }}</td>
-                                    <td class="text-center">{{ $order->items_count }}</td>
+                                    <td>
+                                        <p class="font-medium text-ink">{{ $order->user?->name }}</p>
+                                        <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">{{ $order->user?->email }}</p>
+                                    </td>
+                                    <td class="font-mono text-[11px] uppercase tracking-label text-ink-faint">{{ $order->placed_at->format('d M Y, H:i') }}</td>
+                                    <td class="text-center font-mono text-[13px] text-ink-soft">{{ $order->items_count }}</td>
                                     <td class="text-right font-semibold"><x-money :value="$order->total" /></td>
                                     <td><x-status-badge :status="$order->status" /></td>
                                     <td class="text-right">
-                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-sm font-semibold text-emerald-700 hover:underline">Open</a>
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="font-mono text-[10px] font-bold uppercase tracking-label text-forest-700 hover:underline">Open &rarr;</a>
                                     </td>
                                 </tr>
                             @endforeach

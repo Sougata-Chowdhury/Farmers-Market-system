@@ -34,6 +34,68 @@ window.cartRequest = async function cartRequest(url, method = 'POST', payload = 
     return response.json();
 };
 
+/**
+ * Download a CSV export with visible feedback. The native link is still a
+ * normal anchor, so it keeps working if JavaScript is unavailable.
+ */
+window.downloadCsv = async function downloadCsv(url, fallbackName = 'export.csv') {
+    const notify = (message) => {
+        const store = window.Alpine?.store('cart');
+
+        if (store) {
+            store.notify(message);
+        }
+    };
+
+    notify('Preparing your CSV…');
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'Accept': 'text/csv, text/plain, */*' },
+            credentials: 'same-origin',
+        });
+
+        if (!response.ok) {
+            throw new Error('Export failed — please sign in again and retry.');
+        }
+
+        const contentType = response.headers.get('content-type') ?? '';
+
+        if (!contentType.includes('csv') && !contentType.includes('text/plain')) {
+            throw new Error('Export failed — the server did not return a CSV file.');
+        }
+
+        const blob = await response.blob();
+        const disposition = response.headers.get('content-disposition') ?? '';
+        const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+        const filename = match ? decodeURIComponent(match[1]) : fallbackName;
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = objectUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+        notify(`CSV downloaded — ${filename}`);
+    } catch (error) {
+        notify(error instanceof Error ? error.message : 'Could not export the CSV.');
+    }
+};
+
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-csv-export]');
+
+    if (!link) {
+        return;
+    }
+
+    event.preventDefault();
+    window.downloadCsv(link.href, link.dataset.filename || 'export.csv');
+});
+
 document.addEventListener('alpine:init', () => {
     Alpine.store('cart', {
         count: Number(document.querySelector('[data-cart-count]')?.dataset.cartCount ?? 0),

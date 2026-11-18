@@ -22,32 +22,8 @@ class DemoUsersSeeder extends Seeder
             ]
         );
 
-        $farmers = [
-            [
-                'name' => 'Rafiq Hasan',
-                'email' => 'farmer@farmersmarket.test',
-                'phone' => '01700000002',
-                'address' => 'Savar, Dhaka',
-                'farm_name' => 'Rafiq Organic Farm',
-                'location' => 'Savar, Dhaka',
-                'bio' => 'Third-generation vegetable grower in Savar. We harvest leafy greens and seasonal vegetables the same morning they are delivered.',
-                'bank_name' => 'BRAC Bank',
-                'branch' => 'Savar Branch',
-                'account_no' => '1234567890',
-            ],
-            [
-                'name' => 'Ayesha Begum',
-                'email' => 'ayesha@farmersmarket.test',
-                'phone' => '01700000003',
-                'address' => 'Narsingdi',
-                'farm_name' => 'Ayesha Village Garden',
-                'location' => 'Narsingdi',
-                'bio' => 'A women-run family farm growing fruit, herbs and winter vegetables. Everything is picked to order and packed by hand.',
-                'bank_name' => 'Sonali Bank',
-                'branch' => 'Narsingdi Branch',
-                'account_no' => '9876543210',
-            ],
-        ];
+        /** @var array<int, array<string, mixed>> $farmers */
+        $farmers = require database_path('seeders/data/farmers.php');
 
         foreach ($farmers as $farmer) {
             $user = User::updateOrCreate(
@@ -63,22 +39,36 @@ class DemoUsersSeeder extends Seeder
             );
 
             $user->farmerProfile()->updateOrCreate([], [
+                'farm_name' => $farmer['farm_name'],
+                'location' => $farmer['location'],
+                'bio' => $farmer['bio'],
                 'bank_name' => $farmer['bank_name'],
                 'branch' => $farmer['branch'],
                 'account_no' => $farmer['account_no'],
             ]);
         }
 
-        User::updateOrCreate(
-            ['email' => 'customer@farmersmarket.test'],
-            [
-                'name' => 'Nusrat Jahan',
-                'phone' => '01700000004',
-                'role' => UserRole::Customer,
-                'address' => 'Dhanmondi, Dhaka',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ]
-        );
+        /** @var array<int, array<string, mixed>> $customers */
+        $customers = require database_path('seeders/data/customers.php');
+
+        foreach ($customers as $customer) {
+            User::updateOrCreate(
+                ['email' => $customer['email']],
+                [
+                    'name' => $customer['name'],
+                    'phone' => $customer['phone'],
+                    'role' => UserRole::Customer,
+                    'address' => $customer['address'],
+                    'password' => 'password',
+                    'email_verified_at' => now(),
+                ]
+            );
+        }
+
+        $this->command?->info(sprintf(
+            'Seeded %d farmers and %d customers (password: "password").',
+            count($farmers),
+            count($customers)
+        ));
     }
 }

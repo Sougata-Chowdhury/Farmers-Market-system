@@ -1,8 +1,8 @@
 @props([
     'points' => [],
     'height' => 180,
-    'color' => '#059669',
-    'fill' => 'rgba(5, 150, 105, 0.12)',
+    'color' => '#4A653D',
+    'fill' => 'rgba(74, 101, 61, 0.14)',
     'currency' => true,
     'label' => 'Revenue',
 ])
@@ -44,12 +44,12 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'w-full']) }}>
-    <div class="flex items-start justify-between gap-4">
+    <div class="flex items-start justify-between gap-4 border-b border-dashed border-line-dark pb-3">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ $label }}</p>
-            <p class="mt-1 text-2xl font-bold text-slate-900">{{ $format((float) $values->sum()) }}</p>
+            <p class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft">{{ $label }}</p>
+            <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ $format((float) $values->sum()) }}</p>
         </div>
-        <p class="text-xs text-slate-400">Last {{ $count }} days</p>
+        <p class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Last {{ $count }} days</p>
     </div>
 
     <svg viewBox="0 0 {{ $width }} {{ $height }}" class="mt-3 w-full" role="img"
@@ -58,7 +58,7 @@
             <line x1="{{ $paddingX }}" x2="{{ $width - $paddingX }}"
                   y1="{{ round($paddingY + $chartHeight * $ratio, 2) }}"
                   y2="{{ round($paddingY + $chartHeight * $ratio, 2) }}"
-                  stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" />
+                  stroke="#D3C4AC" stroke-width="1" stroke-dasharray="2 5" />
         @endforeach
 
         @if ($area !== '')
@@ -66,11 +66,11 @@
             <path d="{{ $line }}" fill="none" stroke="{{ $color }}" stroke-width="2.5"
                   stroke-linecap="round" stroke-linejoin="round" />
             <circle cx="{{ $coordinates->last()['x'] }}" cy="{{ $coordinates->last()['y'] }}"
-                    r="3.5" fill="#ffffff" stroke="{{ $color }}" stroke-width="2.5" />
+                    r="3.5" fill="#FFFCF4" stroke="{{ $color }}" stroke-width="2.5" />
         @endif
     </svg>
 
-    <div class="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+    <div class="mt-2 flex items-center justify-between font-mono text-[9px] uppercase tracking-label text-ink-faint">
         @foreach ($tickLabels as $tick)
             <span>{{ $tick['label'] }}</span>
         @endforeach

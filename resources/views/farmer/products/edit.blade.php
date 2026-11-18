@@ -1,5 +1,6 @@
 <x-app-layout :title="'Edit '.$product->name">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p class="eyebrow mb-2">Harvest list &middot; editing</p>
         <x-page-header :title="'Edit '.$product->name" subtitle="Update pricing, stock or the product photo.">
             <a href="{{ route('products.show', $product) }}" class="btn-secondary">View listing</a>
         </x-page-header>

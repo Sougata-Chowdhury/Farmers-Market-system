@@ -9,14 +9,14 @@
     $total = max(1, (float) $segments->sum('value'));
     $circumference = 100;
     $offset = 0;
-    $palette = ['#059669', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
+    $palette = ['#4A653D', '#B88126', '#A9542F', '#5B7E79', '#95846C', '#2A3A25'];
 @endphp
 
 <div {{ $attributes->merge(['class' => 'w-full']) }}>
     <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
         <div class="relative mx-auto h-36 w-36 shrink-0">
             <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90" role="img" aria-label="{{ $title }}">
-                <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#f1f5f9" stroke-width="5" />
+                <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#E8DCC8" stroke-width="5" />
                 @foreach ($segments as $index => $segment)
                     @php
                         $percentage = ((float) $segment['value'] / $total) * $circumference;
@@ -32,8 +32,8 @@
             </svg>
             <div class="pointer-events-none absolute inset-0 grid place-items-center text-center">
                 <div>
-                    <p class="text-xl font-bold text-slate-900">{{ number_format((float) $segments->sum('value')) }}</p>
-                    <p class="text-[11px] uppercase tracking-wider text-slate-400">{{ $unit ?: 'total' }}</p>
+                    <p class="font-display text-xl font-semibold text-ink">{{ number_format((float) $segments->sum('value')) }}</p>
+                    <p class="font-mono text-[9px] uppercase tracking-label text-ink-faint">{{ $unit ?: 'total' }}</p>
                 </div>
             </div>
         </div>
@@ -43,13 +43,13 @@
                 @php($color = $segment['color'] ?? $palette[$index % count($palette)])
                 <li class="flex items-center justify-between gap-3 text-sm">
                     <span class="flex min-w-0 items-center gap-2">
-                        <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background-color: {{ $color }}"></span>
-                        <span class="truncate text-slate-600">{{ $segment['label'] }}</span>
+                        <span class="h-2.5 w-2.5 shrink-0 rounded-sm" style="background-color: {{ $color }}"></span>
+                        <span class="truncate text-ink-soft">{{ $segment['label'] }}</span>
                     </span>
-                    <span class="font-semibold text-slate-900">{{ number_format((float) $segment['value']) }}</span>
+                    <span class="font-display font-semibold text-ink">{{ number_format((float) $segment['value']) }}</span>
                 </li>
             @empty
-                <li class="text-sm text-slate-500">Nothing to show yet.</li>
+                <li class="text-sm text-ink-soft">Nothing to show yet.</li>
             @endforelse
         </ul>
     </div>

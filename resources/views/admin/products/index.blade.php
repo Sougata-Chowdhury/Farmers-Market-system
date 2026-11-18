@@ -1,10 +1,13 @@
 <x-app-layout title="Product moderation">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p class="eyebrow mb-2">The market shelves</p>
         <x-page-header title="Product moderation" subtitle="Hide, restore or remove listings that break the rules.">
-            <a href="{{ route('admin.exports.products') }}" class="btn-secondary">Export CSV</a>
+            <a href="{{ route('admin.exports.products') }}" class="btn-secondary" data-csv-export data-filename="products.csv" download>Export CSV</a>
         </x-page-header>
 
-        <form method="GET" action="{{ route('admin.products.index') }}" class="mt-6 flex flex-wrap items-end gap-3">
+        <form method="GET" action="{{ route('admin.products.index') }}" class="card mt-6 flex flex-wrap items-end gap-3 p-4">
+            <p class="eyebrow w-full">Filter the shelves</p>
+
             <div>
                 <label for="q" class="label">Search</label>
                 <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Product name" class="input mt-1 w-56">
@@ -32,7 +35,7 @@
 
             <button type="submit" class="btn-primary">Apply</button>
             @if (array_filter($filters ?? []))
-                <a href="{{ route('admin.products.index') }}" class="text-sm text-slate-500 hover:text-slate-900">Reset</a>
+                <a href="{{ route('admin.products.index') }}" class="inline-flex items-center px-1 py-2.5 font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint transition hover:text-clay-600">Reset</a>
             @endif
         </form>
 
@@ -42,6 +45,14 @@
             </div>
         @else
             <div class="card mt-6 overflow-hidden">
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Everything listed</p>
+                        <h2 class="mt-1 font-display text-xl font-semibold text-ink">Listing ledger</h2>
+                    </div>
+                    <span class="tag">{{ number_format($products->total()) }} {{ \Illuminate\Support\Str::plural('listing', $products->total()) }}</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="table-base">
                         <thead>
@@ -60,24 +71,24 @@
                                 <tr>
                                     <td>
                                         <div class="flex items-center gap-3">
-                                            <img src="{{ $product->image_url }}" alt="" onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';" class="h-11 w-11 rounded-lg object-cover">
+                                            <img src="{{ $product->image_url }}" alt="" onerror="this.onerror=null;this.src='{{ asset('images/product-placeholder.svg') }}';" class="h-11 w-11 shrink-0 rounded-sm border border-line bg-paper-light object-cover">
                                             <div class="min-w-0">
-                                                <p class="truncate font-medium text-slate-900">{{ $product->name }}</p>
-                                                <p class="text-xs text-slate-500">#{{ $product->id }}</p>
+                                                <p class="truncate font-medium text-ink">{{ $product->name }}</p>
+                                                <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">#{{ $product->id }}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $product->farmer?->name }}</td>
-                                    <td>{{ $product->category?->name }}</td>
+                                    <td class="text-ink-soft">{{ $product->farmer?->name }}</td>
+                                    <td class="text-ink-soft">{{ $product->category?->name }}</td>
                                     <td class="text-right"><x-money :value="$product->price" /></td>
-                                    <td class="text-right">{{ $product->stock }}</td>
+                                    <td class="text-right font-mono text-[13px] text-ink-soft">{{ $product->stock }}</td>
                                     <td>
                                         @if ($product->trashed())
-                                            <span class="inline-flex rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-200">Removed</span>
+                                            <span class="inline-flex items-center gap-1.5 rounded-sm border border-clay-300 bg-clay-50 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-label text-clay-700"><span class="inline-block h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>Removed</span>
                                         @elseif ($product->is_active)
-                                            <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">Live</span>
+                                            <span class="inline-flex items-center gap-1.5 rounded-sm border border-forest-300 bg-forest-50 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-label text-forest-800"><span class="inline-block h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>Live</span>
                                         @else
-                                            <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">Hidden</span>
+                                            <span class="inline-flex items-center gap-1.5 rounded-sm border border-line-dark bg-paper-deep px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-label text-ink-soft"><span class="inline-block h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>Hidden</span>
                                         @endif
                                     </td>
                                     <td>
@@ -85,20 +96,20 @@
                                             @if ($product->trashed())
                                                 <form method="POST" action="{{ route('admin.products.restore', $product->id) }}">
                                                     @csrf
-                                                    <button type="submit" class="text-sm font-semibold text-emerald-700 hover:underline">Restore</button>
+                                                    <button type="submit" class="font-mono text-[10px] font-bold uppercase tracking-label text-forest-700 hover:underline">Restore</button>
                                                 </form>
                                             @else
                                                 <form method="POST" action="{{ route('admin.products.toggle', $product) }}">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" class="text-sm font-medium text-slate-600 hover:underline">
+                                                    <button type="submit" class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft hover:underline">
                                                         {{ $product->is_active ? 'Hide' : 'Publish' }}
                                                     </button>
                                                 </form>
                                                 <form id="remove-product-{{ $product->id }}" method="POST" action="{{ route('admin.products.destroy', $product) }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="text-sm font-medium text-rose-600 hover:underline"
+                                                    <button type="button" class="font-mono text-[10px] font-bold uppercase tracking-label text-clay-600 hover:underline"
                                                             x-on:click="$dispatch('open-modal', 'remove-product-{{ $product->id }}')">
                                                         Remove
                                                     </button>
@@ -106,9 +117,10 @@
 
                                                 <x-modal name="remove-product-{{ $product->id }}" max-width="md" label="Remove this listing?">
                                                     <div class="p-6">
-                                                        <h2 class="font-display text-lg font-semibold text-slate-900">Remove this listing?</h2>
-                                                        <p class="mt-2 text-sm text-slate-600">
-                                                            <span class="font-medium text-slate-900">{{ $product->name }}</span> will disappear from the marketplace.
+                                                        <p class="eyebrow">Confirm removal</p>
+                                                        <h2 class="mt-1 font-display text-lg font-semibold text-ink">Remove this listing?</h2>
+                                                        <p class="mt-2 text-sm text-ink-soft">
+                                                            <span class="font-medium text-ink">{{ $product->name }}</span> will disappear from the marketplace.
                                                             Past orders keep their records.
                                                         </p>
                                                         <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

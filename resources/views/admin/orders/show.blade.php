@@ -1,14 +1,15 @@
 <x-app-layout :title="'Order #'.$order->id">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <a href="{{ route('admin.orders.index') }}" class="text-sm text-slate-500 hover:text-emerald-700">&larr; Back to orders</a>
+        <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft transition hover:text-clay-600">&larr; Back to orders</a>
 
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+        <p class="eyebrow mt-5">Order record</p>
+        <div class="mt-1 flex flex-wrap items-end justify-between gap-4 border-b border-line-dark pb-5">
             <div class="flex flex-wrap items-center gap-3">
-                <h1 class="font-display text-3xl font-medium tracking-tight text-slate-900">Order #{{ $order->id }}</h1>
+                <h1 class="font-display text-3xl font-medium tracking-tight text-ink">Order #{{ $order->id }}</h1>
                 <x-status-badge :status="$order->status" />
             </div>
-            <div class="flex items-center gap-3">
-                <p class="text-sm text-slate-500">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
+            <div class="flex flex-wrap items-center gap-3">
+                <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
                 <a href="{{ route('orders.invoice', $order) }}" class="btn-secondary">Invoice PDF</a>
             </div>
         </div>
@@ -16,6 +17,14 @@
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">
             <div class="space-y-4">
                 <div class="card overflow-hidden">
+                    <div class="card-head">
+                        <div>
+                            <p class="eyebrow">What was ordered</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Line items</h2>
+                        </div>
+                        <span class="tag">{{ $order->items->count() }} {{ \Illuminate\Support\Str::plural('item', $order->items->count()) }}</span>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="table-base">
                             <thead>
@@ -30,67 +39,72 @@
                             <tbody>
                                 @foreach ($order->items as $item)
                                     <tr>
-                                        <td class="font-medium text-slate-900">{{ $item->product_name }}</td>
-                                        <td>{{ $item->farmer?->name }}</td>
+                                        <td class="font-medium text-ink">{{ $item->product_name }}</td>
+                                        <td class="text-ink-soft">{{ $item->farmer?->name }}</td>
                                         <td class="text-right"><x-money :value="$item->unit_price" /></td>
-                                        <td class="text-center">{{ $item->quantity }}</td>
+                                        <td class="text-center font-mono text-[13px] text-ink-soft">{{ $item->quantity }}</td>
                                         <td class="text-right font-semibold"><x-money :value="$item->line_total" /></td>
                                     </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot class="bg-slate-50">
-                                <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">Subtotal</td>
-                                    <td class="px-4 py-2 text-right text-sm font-medium"><x-money :value="$order->subtotal" /></td>
+                            <tfoot class="bg-paper-deep/60">
+                                <tr class="border-t border-line">
+                                    <td colspan="4" class="px-4 py-2 text-right font-mono text-[10px] uppercase tracking-label text-ink-soft">Subtotal</td>
+                                    <td class="px-4 py-2 text-right text-sm font-medium text-ink"><x-money :value="$order->subtotal" /></td>
                                 </tr>
                                 @if ((float) $order->discount > 0)
                                     <tr>
-                                        <td colspan="4" class="px-4 py-2 text-right text-sm text-emerald-700">
+                                        <td colspan="4" class="px-4 py-2 text-right font-mono text-[10px] uppercase tracking-label text-forest-700">
                                             Discount @if ($order->coupon_code) ({{ $order->coupon_code }}) @endif
                                         </td>
-                                        <td class="px-4 py-2 text-right text-sm font-semibold text-emerald-700">−<x-money :value="$order->discount" /></td>
+                                        <td class="px-4 py-2 text-right text-sm font-semibold text-forest-700">−<x-money :value="$order->discount" /></td>
                                     </tr>
                                 @endif
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">Platform fee</td>
-                                    <td class="px-4 py-2 text-right text-sm font-medium"><x-money :value="$order->platform_fee" /></td>
+                                    <td colspan="4" class="px-4 py-2 text-right font-mono text-[10px] uppercase tracking-label text-ink-soft">Platform fee</td>
+                                    <td class="px-4 py-2 text-right text-sm font-medium text-ink"><x-money :value="$order->platform_fee" /></td>
                                 </tr>
-                                <tr>
-                                    <td colspan="4" class="px-4 py-3 text-right text-base font-semibold text-slate-900">Total</td>
-                                    <td class="px-4 py-3 text-right text-base font-bold text-slate-900"><x-money :value="$order->total" /></td>
+                                <tr class="border-t-2 border-line-dark">
+                                    <td colspan="4" class="px-4 py-3 text-right font-mono text-[10px] font-bold uppercase tracking-label text-ink">Total</td>
+                                    <td class="px-4 py-3 text-right font-display text-base font-bold text-ink"><x-money :value="$order->total" /></td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
 
-                <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Fulfilment</h2>
-                    <dl class="mt-3 grid gap-4 text-sm sm:grid-cols-2">
+                <div class="card overflow-hidden">
+                    <div class="card-head">
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Recipient</dt>
-                            <dd class="font-medium text-slate-900">{{ $order->delivery_name }}</dd>
+                            <p class="eyebrow">Delivery</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Fulfilment</h2>
+                        </div>
+                    </div>
+                    <dl class="grid gap-4 p-5 text-sm sm:grid-cols-2">
+                        <div>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Recipient</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $order->delivery_name }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Mobile</dt>
-                            <dd class="text-slate-700">{{ $order->delivery_phone }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Mobile</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->delivery_phone }}</dd>
                         </div>
                         <div class="sm:col-span-2">
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Address</dt>
-                            <dd class="text-slate-700">{{ $order->delivery_address }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Address</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->delivery_address }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Payment method</dt>
-                            <dd class="text-slate-700">{{ $order->payment_method->label() }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Payment method</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->payment_method->label() }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Saved address</dt>
-                            <dd class="text-slate-700">{{ $order->address?->label ?? 'Entered at checkout' }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Saved address</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->address?->label ?? 'Entered at checkout' }}</dd>
                         </div>
                         @if ($order->notes)
                             <div class="sm:col-span-2">
-                                <dt class="text-xs uppercase tracking-wider text-slate-400">Customer note</dt>
-                                <dd class="text-slate-700">{{ $order->notes }}</dd>
+                                <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Customer note</dt>
+                                <dd class="mt-1 border-l-2 border-clay-300 pl-3 text-ink-soft">{{ $order->notes }}</dd>
                             </div>
                         @endif
                     </dl>
@@ -98,61 +112,78 @@
             </div>
 
             <aside class="space-y-4">
-                <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Status</h2>
-
-                    @php($transitions = $order->status->allowedTransitions())
-
-                    @if ($transitions === [])
-                        <p class="mt-3 text-sm text-slate-500">
-                            This order is {{ strtolower($order->status->label()) }} and can no longer change.
-                            @if ($order->status === \App\Enums\OrderStatus::Cancelled)
-                                Stock was returned to the farmers.
-                            @endif
-                        </p>
-                    @else
-                        <p class="mt-1 text-sm text-slate-500">Move this order forward as fulfilment progresses.</p>
-                        <div class="mt-4 space-y-2">
-                            @foreach ($transitions as $target)
-                                <form method="POST" action="{{ route('admin.orders.status', $order) }}"
-                                      @if ($target === \App\Enums\OrderStatus::Cancelled) onsubmit="return confirm('Cancel this order and restore stock?');" @endif>
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="{{ $target->value }}">
-                                    <button type="submit" @class([
-                                        'w-full',
-                                        'btn-danger' => $target === \App\Enums\OrderStatus::Cancelled,
-                                        'btn-primary' => $target !== \App\Enums\OrderStatus::Cancelled,
-                                    ])>
-                                        {{ $target === \App\Enums\OrderStatus::Cancelled ? 'Cancel order' : 'Mark as '.$target->label() }}
-                                    </button>
-                                </form>
-                            @endforeach
+                <div class="card overflow-hidden">
+                    <div class="card-head">
+                        <div>
+                            <p class="eyebrow">Next step</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Status</h2>
                         </div>
-                    @endif
+                    </div>
+
+                    <div class="p-5">
+                        @php($transitions = $order->status->allowedTransitions())
+
+                        @if ($transitions === [])
+                            <p class="text-sm text-ink-soft">
+                                This order is {{ strtolower($order->status->label()) }} and can no longer change.
+                                @if ($order->status === \App\Enums\OrderStatus::Cancelled)
+                                    Stock was returned to the farmers.
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-sm text-ink-soft">Move this order forward as fulfilment progresses.</p>
+                            <div class="mt-4 space-y-2">
+                                @foreach ($transitions as $target)
+                                    <form method="POST" action="{{ route('admin.orders.status', $order) }}"
+                                          @if ($target === \App\Enums\OrderStatus::Cancelled) onsubmit="return confirm('Cancel this order and restore stock?');" @endif>
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="{{ $target->value }}">
+                                        <button type="submit" @class([
+                                            'w-full',
+                                            'btn-danger' => $target === \App\Enums\OrderStatus::Cancelled,
+                                            'btn-primary' => $target !== \App\Enums\OrderStatus::Cancelled,
+                                        ])>
+                                            {{ $target === \App\Enums\OrderStatus::Cancelled ? 'Cancel order' : 'Mark as '.$target->label() }}
+                                        </button>
+                                    </form>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
-                <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Order timeline</h2>
-                    <div class="mt-4">
+                <div class="card overflow-hidden">
+                    <div class="card-head">
+                        <div>
+                            <p class="eyebrow">The paper trail</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Order timeline</h2>
+                        </div>
+                    </div>
+                    <div class="p-5">
                         <x-order-timeline :order="$order" />
                     </div>
                 </div>
 
-                <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Customer</h2>
-                    <dl class="mt-3 space-y-2 text-sm">
+                <div class="card overflow-hidden">
+                    <div class="card-head">
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Name</dt>
-                            <dd class="font-medium text-slate-900">{{ $order->user->name }}</dd>
+                            <p class="eyebrow">On the order</p>
+                            <h2 class="mt-1 font-display text-xl font-semibold text-ink">Customer</h2>
+                        </div>
+                    </div>
+                    <dl class="space-y-3 p-5 text-sm">
+                        <div>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Name</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $order->user->name }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Email</dt>
-                            <dd class="text-slate-700">{{ $order->user->email }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Email</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->user->email }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Phone</dt>
-                            <dd class="text-slate-700">{{ $order->user->phone }}</dd>
+                            <dt class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-faint">Phone</dt>
+                            <dd class="mt-1 text-ink-soft">{{ $order->user->phone }}</dd>
                         </div>
                     </dl>
                 </div>

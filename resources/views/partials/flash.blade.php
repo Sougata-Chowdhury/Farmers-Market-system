@@ -1,28 +1,24 @@
 @if (session('status'))
-    <div class="mb-5 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+    <div class="mb-5 flex items-start gap-3 border border-forest-700/30 border-l-4 border-l-forest-700 bg-forest-50 px-4 py-3 text-sm text-forest-900"
          role="status" aria-live="polite">
-        <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>
-        <p>{{ session('status') }}</p>
+        <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-forest-700 font-mono text-[10px] font-bold text-white" aria-hidden="true">✓</span>
+        <p class="leading-relaxed">{{ session('status') }}</p>
     </div>
 @endif
 
 @if (session('error'))
-    <div class="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+    <div class="mb-5 flex items-start gap-3 border border-clay-600/40 border-l-4 border-l-clay-600 bg-clay-50 px-4 py-3 text-sm text-clay-800"
          role="alert">
-        <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>
-        <p>{{ session('error') }}</p>
+        <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-clay-600 font-mono text-[10px] font-bold text-white" aria-hidden="true">!</span>
+        <p class="leading-relaxed">{{ session('error') }}</p>
     </div>
 @endif
 
 @if ($errors->any())
     <div id="form-errors" tabindex="-1" role="alert"
-         class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <p class="font-semibold">Please fix the following:</p>
-        <ul class="mt-1 list-inside list-disc space-y-0.5">
+         class="mb-5 border border-ochre-500/40 border-l-4 border-l-ochre-500 bg-ochre-50 px-4 py-3 text-sm text-ochre-900">
+        <p class="font-mono text-[10px] font-bold uppercase tracking-label">Please fix the following</p>
+        <ul class="mt-2 list-inside list-disc space-y-0.5">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach

@@ -1,7 +1,8 @@
 <x-app-layout title="Sales">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p class="eyebrow mb-2">Farm ledger</p>
         <x-page-header title="Sales" subtitle="Every order that includes your products.">
-            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary">Export CSV</a>
+            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary" data-csv-export data-filename="my-sales.csv" download>Export CSV</a>
             <a href="{{ route('farmer.products.index') }}" class="btn-secondary">Manage products</a>
         </x-page-header>
 
@@ -16,17 +17,23 @@
                 @foreach ($orders as $order)
                     @php($subtotal = $order->items->sum('line_total'))
                     <article class="card overflow-hidden">
-                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-                            <div class="flex flex-wrap items-center gap-3">
-                                <p class="font-semibold text-slate-900">Order #{{ $order->id }}</p>
-                                <x-status-badge :status="$order->status" />
-                                <span class="text-sm text-slate-500">
+                        <div class="card-head">
+                            <div class="min-w-0">
+                                <p class="eyebrow">Order slip</p>
+                                <div class="mt-1 flex flex-wrap items-center gap-3">
+                                    <h2 class="font-display text-xl font-semibold text-ink">Order #{{ $order->id }}</h2>
+                                    <x-status-badge :status="$order->status" />
+                                </div>
+                                <p class="mt-1 font-mono text-[10px] uppercase tracking-label text-ink-faint">
                                     {{ $order->placed_at->format('d M Y, h:i A') }} &middot; {{ $order->user?->name }}
-                                </span>
+                                </p>
                             </div>
-                            <p class="text-sm font-semibold text-slate-900">
-                                Your share: <x-money :value="$subtotal" />
-                            </p>
+                            <div class="text-right">
+                                <p class="eyebrow">Your share</p>
+                                <p class="mt-1 font-display text-lg font-semibold text-ink">
+                                    <x-money :value="$subtotal" />
+                                </p>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -42,9 +49,9 @@
                                 <tbody>
                                     @foreach ($order->items as $item)
                                         <tr>
-                                            <td class="font-medium text-slate-900">{{ $item->product_name }}</td>
+                                            <td class="font-medium text-ink">{{ $item->product_name }}</td>
                                             <td class="text-right"><x-money :value="$item->unit_price" /></td>
-                                            <td class="text-center">{{ $item->quantity }}</td>
+                                            <td class="text-center font-mono text-[11px] text-ink-soft">{{ $item->quantity }}</td>
                                             <td class="text-right font-semibold"><x-money :value="$item->line_total" /></td>
                                         </tr>
                                     @endforeach

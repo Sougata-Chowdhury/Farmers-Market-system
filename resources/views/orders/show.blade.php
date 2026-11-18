@@ -1,14 +1,15 @@
 <x-app-layout :title="'Order #'.$order->id">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <a href="{{ route('orders.index') }}" class="text-sm text-slate-500 hover:text-emerald-700">&larr; Back to orders</a>
+        <a href="{{ route('orders.index') }}" class="font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft hover:text-clay-600">&larr; Back to orders</a>
 
         <div class="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <h1 class="font-display text-3xl font-medium tracking-tight text-slate-900">Order #{{ $order->id }}</h1>
+                <p class="eyebrow">Order slip</p>
+                <div class="mt-1 flex flex-wrap items-center gap-3">
+                    <h1 class="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">Order #{{ $order->id }}</h1>
                     <x-status-badge :status="$order->status" />
                 </div>
-                <p class="mt-1 text-sm text-slate-500">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
+                <p class="mt-1 font-mono text-[10px] uppercase tracking-label text-ink-faint">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -35,20 +36,21 @@
                     <x-modal name="cancel-order" max-width="md" label="Cancel this order?">
                         <div class="p-6">
                             <div class="flex items-start gap-3">
-                                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-rose-50 text-rose-600">
+                                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-sm border border-clay-300 bg-clay-50 text-clay-700">
                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg>
                                 </span>
                                 <div>
-                                    <h2 class="font-display text-lg font-semibold text-slate-900">Cancel this order?</h2>
-                                    <p class="mt-1 text-sm text-slate-600">
+                                    <p class="eyebrow !text-clay-700">Please confirm</p>
+                                    <h2 class="mt-1 font-display text-lg font-semibold text-ink">Cancel this order?</h2>
+                                    <p class="mt-2 text-sm leading-relaxed text-ink-soft">
                                         We'll release the reserved stock and let the farmer know. This can't be undone.
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-dashed border-line pt-5 sm:flex-row sm:justify-end">
                                 <button type="button" class="btn-secondary"
                                         x-on:click="$dispatch('close-modal', 'cancel-order')">
                                     Keep order
@@ -80,7 +82,7 @@
                         <tbody>
                             @foreach ($order->items as $item)
                                 <tr>
-                                    <td class="font-medium text-slate-900">{{ $item->product_name }}</td>
+                                    <td class="font-medium text-ink">{{ $item->product_name }}</td>
                                     <td>{{ $item->farmer?->name }}</td>
                                     <td class="text-right"><x-money :value="$item->unit_price" /></td>
                                     <td class="text-center">{{ $item->quantity }}</td>
@@ -88,28 +90,28 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="bg-slate-50">
+                        <tfoot class="bg-paper-deep/60">
                             <tr>
-                                <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">Subtotal</td>
-                                <td class="px-4 py-2 text-right text-sm font-medium"><x-money :value="$order->subtotal" /></td>
+                                <td colspan="4" class="px-4 py-2 text-right text-sm text-ink-soft">Subtotal</td>
+                                <td class="px-4 py-2 text-right text-sm font-medium text-ink"><x-money :value="$order->subtotal" /></td>
                             </tr>
                             @if ((float) $order->discount > 0)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right text-sm text-emerald-700">
+                                    <td colspan="4" class="px-4 py-2 text-right text-sm text-forest-700">
                                         Discount @if ($order->coupon_code) ({{ $order->coupon_code }}) @endif
                                     </td>
-                                    <td class="px-4 py-2 text-right text-sm font-semibold text-emerald-700">−<x-money :value="$order->discount" /></td>
+                                    <td class="px-4 py-2 text-right text-sm font-semibold text-forest-700">−<x-money :value="$order->discount" /></td>
                                 </tr>
                             @endif
                             <tr>
-                                <td colspan="4" class="px-4 py-2 text-right text-sm text-slate-500">
+                                <td colspan="4" class="px-4 py-2 text-right text-sm text-ink-soft">
                                     Platform fee ({{ (int) (config('marketplace.platform_fee') * 100) }}%)
                                 </td>
-                                <td class="px-4 py-2 text-right text-sm font-medium"><x-money :value="$order->platform_fee" /></td>
+                                <td class="px-4 py-2 text-right text-sm font-medium text-ink"><x-money :value="$order->platform_fee" /></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="px-4 py-3 text-right text-base font-semibold text-slate-900">Total</td>
-                                <td class="px-4 py-3 text-right text-base font-bold text-slate-900"><x-money :value="$order->total" /></td>
+                                <td colspan="4" class="border-t border-ink px-4 py-3 text-right font-display text-base font-semibold text-ink">Total</td>
+                                <td class="border-t border-ink px-4 py-3 text-right font-display text-lg font-bold text-clay-600"><x-money :value="$order->total" /></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -118,42 +120,45 @@
 
             <aside class="space-y-4">
                 <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Order timeline</h2>
+                    <p class="eyebrow">The journey</p>
+                    <h2 class="mt-1 font-display text-xl font-semibold text-ink">Order timeline</h2>
                     <div class="mt-4">
                         <x-order-timeline :order="$order" />
                     </div>
                 </div>
 
                 <div class="card p-5">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Delivery</h2>
-                    <dl class="mt-3 space-y-2 text-sm">
+                    <p class="eyebrow">Where it's going</p>
+                    <h2 class="mt-1 font-display text-xl font-semibold text-ink">Delivery</h2>
+                    <dl class="mt-3 space-y-2.5 text-sm">
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Recipient</dt>
-                            <dd class="font-medium text-slate-900">{{ $order->delivery_name }}</dd>
+                            <dt class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Recipient</dt>
+                            <dd class="font-medium text-ink">{{ $order->delivery_name }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Mobile</dt>
-                            <dd class="text-slate-700">{{ $order->delivery_phone }}</dd>
+                            <dt class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Mobile</dt>
+                            <dd class="text-ink-soft">{{ $order->delivery_phone }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Address</dt>
-                            <dd class="text-slate-700">{{ $order->delivery_address }}</dd>
+                            <dt class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Address</dt>
+                            <dd class="text-ink-soft">{{ $order->delivery_address }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase tracking-wider text-slate-400">Payment</dt>
-                            <dd class="text-slate-700">{{ $order->payment_method->label() }}</dd>
+                            <dt class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Payment</dt>
+                            <dd class="text-ink-soft">{{ $order->payment_method->label() }}</dd>
                         </div>
                         @if ($order->notes)
                             <div>
-                                <dt class="text-xs uppercase tracking-wider text-slate-400">Note</dt>
-                                <dd class="text-slate-700">{{ $order->notes }}</dd>
+                                <dt class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Note</dt>
+                                <dd class="text-ink-soft">{{ $order->notes }}</dd>
                             </div>
                         @endif
                     </dl>
                 </div>
 
-                <div class="card p-5 text-sm text-slate-500">
-                    Need help with this order? Contact support and quote <span class="font-semibold text-slate-700">#{{ $order->id }}</span>.
+                <div class="border border-dashed border-line-dark bg-paper-light p-5 text-sm text-ink-soft">
+                    <p class="hand text-xl text-ink">Need a hand with this order?</p>
+                    <p class="mt-1">Quote <span class="font-mono font-bold text-ink">#{{ $order->id }}</span> and we'll sort it out.</p>
                 </div>
             </aside>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\OrderItem;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class DashboardController extends Controller
 
         $recentSales = (clone $sales)
             ->with(['order:id,status,placed_at,user_id', 'order.user:id,name'])
-            ->latest()
+            ->orderByDesc(Order::select('placed_at')->whereColumn('orders.id', 'order_items.order_id'))
             ->limit(8)
             ->get();
 
@@ -57,7 +58,9 @@ class DashboardController extends Controller
             'topProducts' => $topProducts,
             'lowStockProducts' => $lowStockProducts,
             'salesSeries' => $this->salesSeries($user->id),
-            'lastThirtyDays' => round((float) (clone $sales)->where('order_items.created_at', '>=', now()->subDays(30))->sum('line_total'), 2),
+            'lastThirtyDays' => round((float) (clone $sales)
+                ->whereHas('order', fn ($query) => $query->where('placed_at', '>=', now()->subDays(30)))
+                ->sum('line_total'), 2),
         ]);
     }
 
@@ -74,8 +77,8 @@ class DashboardController extends Controller
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->where('order_items.farmer_id', $farmerId)
             ->where('orders.status', '!=', 'cancelled')
-            ->where('order_items.created_at', '>=', $start)
-            ->selectRaw('DATE(order_items.created_at) as day, SUM(order_items.line_total) as revenue')
+            ->where('orders.placed_at', '>=', $start)
+            ->selectRaw('DATE(orders.placed_at) as day, SUM(order_items.line_total) as revenue')
             ->groupBy('day')
             ->pluck('revenue', 'day');
 

@@ -2,17 +2,17 @@
 
 @php
     $rounded = round((float) $rating);
-    $class = $size === 'lg' ? 'text-base' : 'text-xs';
+    $class = $size === 'lg' ? 'text-sm' : 'text-[10px]';
 @endphp
 
 <span class="inline-flex items-center gap-1 {{ $class }}" title="{{ number_format((float) $rating, 1) }} out of 5">
-    <span class="text-amber-500" aria-hidden="true">
+    <span class="tracking-[0.12em] text-ochre-500" aria-hidden="true">
         @for ($i = 1; $i <= 5; $i++)
             {{ $i <= $rounded ? '★' : '☆' }}
         @endfor
     </span>
-    <span class="font-medium text-slate-600">{{ number_format((float) $rating, 1) }}</span>
+    <span class="font-mono font-bold text-ink-soft">{{ number_format((float) $rating, 1) }}</span>
     @if ($count !== null)
-        <span class="text-slate-400">({{ $count }})</span>
+        <span class="font-mono text-ink-faint">({{ $count }})</span>
     @endif
 </span>

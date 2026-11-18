@@ -1,7 +1,8 @@
 <x-app-layout title="Farmer dashboard">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <p class="eyebrow mb-2">The stall ledger</p>
         <x-page-header :title="'Welcome back, '.auth()->user()->name" subtitle="Live numbers from your storefront — updated as customers order.">
-            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary">Export sales CSV</a>
+            <a href="{{ route('farmer.exports.orders') }}" class="btn-secondary" data-csv-export data-filename="my-sales.csv" download>Export sales CSV</a>
             <a href="{{ route('farmer.products.create') }}" class="btn-primary">Add product</a>
         </x-page-header>
 
@@ -14,8 +15,9 @@
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.5fr] lg:items-start">
             <section class="card p-5 sm:p-6">
-                <h2 class="font-display text-lg font-semibold text-slate-900">Sales, last 30 days</h2>
-                <p class="mt-1 text-sm text-slate-500">Your share of each order, before platform fees.</p>
+                <p class="eyebrow">Daily takings</p>
+                <h2 class="mt-1 font-display text-2xl font-semibold text-ink">Sales, last 30 days</h2>
+                <p class="mt-1 text-sm text-ink-soft">Your share of each order, before platform fees.</p>
                 <div class="mt-4">
                     <x-line-chart :points="$salesSeries" label="Daily sales" :height="190" />
                 </div>
@@ -23,35 +25,38 @@
 
             <section class="card p-5 sm:p-6">
                 <div class="flex items-center justify-between gap-3">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Low stock</h2>
+                    <div>
+                        <p class="eyebrow">Low stock</p>
+                        <h2 class="mt-1 font-display text-2xl font-semibold text-ink">Stock watch</h2>
+                    </div>
                     <span @class([
-                        'rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset',
-                        'bg-amber-100 text-amber-800 ring-amber-200' => $stats['low_stock'] > 0,
-                        'bg-emerald-100 text-emerald-800 ring-emerald-200' => $stats['low_stock'] === 0,
+                        'rounded-sm px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-label ring-1 ring-inset',
+                        'bg-ochre-100 text-ochre-800 ring-ochre-200' => $stats['low_stock'] > 0,
+                        'bg-forest-100 text-forest-800 ring-forest-200' => $stats['low_stock'] === 0,
                     ])>
                         {{ $stats['low_stock'] }} {{ \Illuminate\Support\Str::plural('product', $stats['low_stock']) }}
                     </span>
                 </div>
 
                 @if ($lowStockProducts->isEmpty())
-                    <p class="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <p class="hand mt-4 border border-dashed border-line-dark bg-paper-light px-4 py-3 text-xl text-forest-800">
                         Everything is comfortably stocked. Keep it up.
                     </p>
                 @else
-                    <ul class="mt-4 divide-y divide-slate-100">
+                    <ul class="mt-4 divide-y divide-dashed divide-line-dark/60">
                         @foreach ($lowStockProducts as $product)
                             <li class="flex items-center justify-between gap-3 py-2.5">
                                 <div class="min-w-0">
-                                    <p class="truncate text-sm font-medium text-slate-900">{{ $product->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $product->stock }} {{ $product->unit }} left</p>
+                                    <p class="truncate text-sm font-semibold text-ink">{{ $product->name }}</p>
+                                    <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">{{ $product->stock }} {{ $product->unit }} left</p>
                                 </div>
                                 <a href="{{ route('farmer.products.edit', $product) }}"
-                                   class="shrink-0 text-xs font-semibold text-emerald-700 hover:underline">Restock</a>
+                                   class="shrink-0 font-mono text-[10px] font-bold uppercase tracking-label text-clay-600 hover:underline">Restock</a>
                             </li>
                         @endforeach
                     </ul>
-                    <a href="{{ route('farmer.products.index') }}" class="mt-3 inline-block text-xs font-semibold text-slate-500 hover:text-emerald-700">
-                        Manage all products &rarr;
+                    <a href="{{ route('farmer.products.index') }}" class="mt-3 inline-block font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft hover:text-ink">
+                        Manage all produce &rarr;
                     </a>
                 @endif
             </section>
@@ -59,27 +64,30 @@
 
         <div class="mt-6 grid gap-6 lg:grid-cols-2">
             <section class="card overflow-hidden">
-                <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Recent sales</h2>
-                    <a href="{{ route('farmer.orders.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">All orders</a>
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Fresh off the ledger</p>
+                        <h2 class="mt-1 font-display text-xl font-semibold text-ink">Recent sales</h2>
+                    </div>
+                    <a href="{{ route('farmer.orders.index') }}" class="font-mono text-[10px] font-bold uppercase tracking-label text-clay-600 hover:underline">All orders</a>
                 </div>
 
                 @if ($recentSales->isEmpty())
-                    <p class="px-5 py-8 text-center text-sm text-slate-500">No sales yet — your first order will appear here.</p>
+                    <p class="hand px-5 py-10 text-center text-xl text-ink-faint">No sales yet — your first order will appear here.</p>
                 @else
-                    <ul class="divide-y divide-slate-100">
+                    <ul class="divide-y divide-dashed divide-line-dark/60">
                         @foreach ($recentSales as $sale)
                             <li class="flex items-center justify-between gap-3 px-5 py-3">
                                 <div class="min-w-0">
-                                    <p class="truncate text-sm font-medium text-slate-900">{{ $sale->product_name }}</p>
-                                    <p class="text-xs text-slate-500">
+                                    <p class="truncate text-sm font-semibold text-ink">{{ $sale->product_name }}</p>
+                                    <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">
                                         Order #{{ $sale->order_id }} &middot; {{ $sale->order?->user?->name }} &middot;
                                         {{ $sale->created_at->diffForHumans() }}
                                     </p>
                                 </div>
                                 <div class="shrink-0 text-right">
-                                    <p class="text-sm font-semibold text-slate-900"><x-money :value="$sale->line_total" /></p>
-                                    <p class="text-xs text-slate-500">{{ $sale->quantity }} unit{{ $sale->quantity === 1 ? '' : 's' }}</p>
+                                    <p class="font-display text-base font-semibold text-ink"><x-money :value="$sale->line_total" /></p>
+                                    <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">{{ $sale->quantity }} unit{{ $sale->quantity === 1 ? '' : 's' }}</p>
                                 </div>
                             </li>
                         @endforeach
@@ -88,13 +96,16 @@
             </section>
 
             <section class="card overflow-hidden">
-                <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-                    <h2 class="font-display text-lg font-semibold text-slate-900">Best sellers</h2>
-                    <a href="{{ route('farmer.exports.products') }}" class="text-sm font-medium text-emerald-700 hover:underline">Export CSV</a>
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Your best rows</p>
+                        <h2 class="mt-1 font-display text-xl font-semibold text-ink">Best sellers</h2>
+                    </div>
+                    <a href="{{ route('farmer.exports.products') }}" class="font-mono text-[10px] font-bold uppercase tracking-label text-clay-600 hover:underline" data-csv-export data-filename="my-products.csv" download>Export CSV</a>
                 </div>
 
                 @if ($topProducts->isEmpty())
-                    <p class="px-5 py-8 text-center text-sm text-slate-500">Add your first product to start selling.</p>
+                    <p class="hand px-5 py-10 text-center text-xl text-ink-faint">Add your first product to start selling.</p>
                 @else
                     <div class="overflow-x-auto">
                         <table class="table-base">
@@ -109,15 +120,15 @@
                                 @foreach ($topProducts as $product)
                                     <tr>
                                         <td>
-                                            <p class="font-medium text-slate-900">{{ $product->name }}</p>
-                                            <p class="text-xs text-slate-500">{{ $product->category?->name }}</p>
+                                            <p class="font-medium text-ink">{{ $product->name }}</p>
+                                            <p class="font-mono text-[10px] uppercase tracking-label text-ink-faint">{{ $product->category?->name }}</p>
                                         </td>
                                         <td class="text-right font-semibold">{{ number_format((int) $product->units_sold) }}</td>
                                         <td class="text-right">
                                             <span @class([
                                                 'font-semibold',
-                                                'text-rose-600' => $product->stock <= 5,
-                                                'text-slate-700' => $product->stock > 5,
+                                                'text-clay-600' => $product->stock <= 5,
+                                                'text-ink' => $product->stock > 5,
                                             ])>{{ $product->stock }}</span>
                                         </td>
                                     </tr>

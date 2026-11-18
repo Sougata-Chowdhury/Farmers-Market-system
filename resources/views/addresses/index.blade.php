@@ -12,14 +12,14 @@
                         <div class="flex flex-wrap items-start justify-between gap-3">
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <h2 class="font-display text-lg font-semibold text-slate-900">{{ $address->label }}</h2>
+                                    <h2 class="font-display text-xl font-semibold text-ink">{{ $address->label }}</h2>
                                     @if ($address->is_default)
-                                        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">Default</span>
+                                        <span class="tag !border-forest-700/40 !bg-forest-50 !text-forest-700">Default</span>
                                     @endif
                                 </div>
-                                <p class="mt-1 text-sm font-medium text-slate-800">{{ $address->recipient_name }}</p>
-                                <p class="text-sm text-slate-500">{{ $address->phone }}</p>
-                                <p class="mt-1 text-sm leading-relaxed text-slate-600">
+                                <p class="mt-1 text-sm font-medium text-ink">{{ $address->recipient_name }}</p>
+                                <p class="font-mono text-[11px] text-ink-soft">{{ $address->phone }}</p>
+                                <p class="mt-1 text-sm leading-relaxed text-ink-soft">
                                     {{ $address->address_line }}@if ($address->area), {{ $address->area }}@endif
                                 </p>
                             </div>
@@ -42,14 +42,15 @@
 
                         <x-modal name="delete-address-{{ $address->id }}" max-width="md" focusable>
                             <div class="p-6">
-                                <h3 class="font-display text-lg font-semibold text-slate-900">Remove this address?</h3>
-                                <p class="mt-2 text-sm text-slate-500">
-                                    <span class="font-medium text-slate-700">{{ $address->label }}</span> —
+                                <p class="eyebrow">Remove address</p>
+                                <h3 class="mt-1 font-display text-lg font-semibold text-ink">Remove this address?</h3>
+                                <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+                                    <span class="font-medium text-ink">{{ $address->label }}</span> —
                                     {{ $address->address_line }} will be removed from your saved addresses.
                                     Past orders keep the delivery details they were placed with.
                                 </p>
 
-                                <div class="mt-6 flex justify-end gap-2">
+                                <div class="mt-6 flex flex-col-reverse justify-end gap-2 border-t border-dashed border-line pt-5 sm:flex-row">
                                     <button type="button" class="btn-secondary" x-on:click="$dispatch('close')">Keep address</button>
 
                                     <form method="POST" action="{{ route('addresses.destroy', $address) }}">
@@ -71,8 +72,9 @@
             </section>
 
             <aside id="new-address" class="card p-5">
-                <h2 class="font-display text-lg font-semibold text-slate-900">Add an address</h2>
-                <p class="mt-1 text-sm text-slate-500">Saved addresses can be edited by removing and adding a new one.</p>
+                <p class="eyebrow">A new place</p>
+                <h2 class="mt-1 font-display text-2xl font-semibold text-ink">Add an address</h2>
+                <p class="mt-1 text-sm text-ink-soft">Saved addresses can be edited by removing and adding a new one.</p>
 
                 <form method="POST" action="{{ route('addresses.store') }}" class="mt-4 space-y-4">
                     @csrf
@@ -106,15 +108,15 @@
                     </div>
 
                     <div>
-                        <label for="area" class="label">Area or city <span class="text-slate-400">(optional)</span></label>
+                        <label for="area" class="label">Area or city <span class="text-ink-faint">(optional)</span></label>
                         <input id="area" name="area" type="text" value="{{ old('area') }}" class="input mt-1"
                                placeholder="e.g. Dhanmondi, Dhaka">
                         @error('area') <p class="field-error">{{ $message }}</p> @enderror
                     </div>
 
-                    <label class="flex items-center gap-2 text-sm text-slate-700">
+                    <label class="flex items-center gap-2 text-sm text-ink">
                         <input type="checkbox" name="is_default" value="1" @checked(old('is_default', $addresses->isEmpty()))
-                               class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                               class="h-4 w-4 rounded border-line-dark text-forest-700 focus:ring-forest-600">
                         Use as my default delivery address
                     </label>
 

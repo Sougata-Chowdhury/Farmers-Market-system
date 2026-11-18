@@ -4,14 +4,15 @@
             <a href="{{ route('home') }}" class="btn-secondary">Shop more</a>
         </x-page-header>
 
-        <div class="mt-6 flex flex-wrap gap-2">
+        <div class="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line-dark">
             @foreach (['' => 'All', 'pending' => 'Pending', 'confirmed' => 'Confirmed', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'] as $value => $label)
                 <a href="{{ route('orders.index', array_filter(['status' => $value ?: null])) }}"
                    @class([
-                       'rounded-full border px-4 py-2 text-sm font-medium transition',
-                       'border-emerald-600 bg-emerald-600 text-white' => $status === ($value ?: null),
-                       'border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-700' => $status !== ($value ?: null),
-                   ])>
+                       'border-b-2 pb-2 font-mono text-[10px] font-bold uppercase tracking-label transition',
+                       'border-clay-500 text-ink' => $status === ($value ?: null),
+                       'border-transparent text-ink-soft hover:text-ink' => $status !== ($value ?: null),
+                   ])
+                   @if ($status === ($value ?: null)) aria-current="page" @endif>
                     {{ $label }}
                 </a>
             @endforeach
@@ -26,14 +27,14 @@
         @else
             <div class="mt-6 space-y-3">
                 @foreach ($orders as $order)
-                    <div class="card flex flex-col gap-4 p-5 transition hover:border-emerald-300 hover:shadow-md sm:flex-row sm:items-center">
+                    <div class="card flex flex-col gap-4 p-5 transition hover:border-ink hover:shadow-md sm:flex-row sm:items-center">
                         <a href="{{ route('orders.show', $order) }}" class="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center">
                             <div class="flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <p class="font-semibold text-slate-900">Order #{{ $order->id }}</p>
+                                    <p class="font-display text-lg font-semibold text-ink">Order #{{ $order->id }}</p>
                                     <x-status-badge :status="$order->status" />
                                 </div>
-                                <p class="mt-1 text-sm text-slate-500">
+                                <p class="mt-1 font-mono text-[10px] uppercase tracking-label text-ink-faint">
                                     Placed {{ $order->placed_at->format('d M Y, h:i A') }} &middot;
                                     {{ $order->items_count }} {{ \Illuminate\Support\Str::plural('item', $order->items_count) }}
                                 </p>
@@ -41,10 +42,10 @@
 
                             <div class="flex items-center gap-4 sm:text-right">
                                 <div>
-                                    <p class="text-xs uppercase tracking-wider text-slate-400">Total</p>
-                                    <p class="font-bold text-slate-900"><x-money :value="$order->total" /></p>
+                                    <p class="font-mono text-[9px] uppercase tracking-label text-ink-faint">Total</p>
+                                    <p class="font-display text-lg font-bold text-ink"><x-money :value="$order->total" /></p>
                                 </div>
-                                <span class="text-slate-300" aria-hidden="true">&rarr;</span>
+                                <span class="text-line-dark" aria-hidden="true">&rarr;</span>
                             </div>
                         </a>
 

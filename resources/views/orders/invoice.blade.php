@@ -8,22 +8,22 @@
         * { box-sizing: border-box; }
         body {
             font-family: "DejaVu Sans", sans-serif;
-            color: #0f172a;
+            color: #2E2A21;
             font-size: 12px;
             line-height: 1.5;
             margin: 0;
         }
-        .header { width: 100%; border-bottom: 2px solid #047857; padding-bottom: 18px; }
+        .header { width: 100%; border-bottom: 2px solid #3B5232; padding-bottom: 18px; }
         .header td { vertical-align: top; }
-        .brand { font-size: 20px; font-weight: bold; color: #047857; letter-spacing: -0.3px; }
-        .brand small { display: block; font-size: 10px; font-weight: normal; color: #64748b; letter-spacing: 0.6px; text-transform: uppercase; }
-        .doc-title { text-align: right; font-size: 24px; font-weight: bold; letter-spacing: 1px; color: #0f172a; margin: 0; }
-        .muted { color: #64748b; }
+        .brand { font-size: 20px; font-weight: bold; color: #3B5232; letter-spacing: -0.3px; }
+        .brand small { display: block; font-size: 10px; font-weight: normal; color: #6B6152; letter-spacing: 0.6px; text-transform: uppercase; }
+        .doc-title { text-align: right; font-size: 24px; font-weight: bold; letter-spacing: 1px; color: #2E2A21; margin: 0; }
+        .muted { color: #6B6152; }
         .small { font-size: 10px; }
         .meta { margin-top: 22px; width: 100%; }
         .meta td { vertical-align: top; width: 50%; }
-        .panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
-        .panel h3 { margin: 0 0 6px; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b; }
+        .panel { background: #F7F1E4; border: 1px solid #DCD0BC; border-radius: 4px; padding: 12px 14px; }
+        .panel h3 { margin: 0 0 6px; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: #6B6152; }
         .panel p { margin: 0; }
         table.items { width: 100%; border-collapse: collapse; margin-top: 26px; }
         table.items th {
@@ -31,24 +31,24 @@
             font-size: 9px;
             letter-spacing: 0.7px;
             text-transform: uppercase;
-            color: #64748b;
-            border-bottom: 1px solid #cbd5e1;
+            color: #6B6152;
+            border-bottom: 1px solid #C4B69E;
             padding: 8px 6px;
         }
-        table.items td { padding: 9px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        table.items td { padding: 9px 6px; border-bottom: 1px solid #DCD0BC; vertical-align: top; }
         .right { text-align: right; }
         .center { text-align: center; }
         .totals { width: 46%; margin-left: 54%; margin-top: 14px; border-collapse: collapse; }
         .totals td { padding: 6px 6px; }
-        .totals .grand td { border-top: 2px solid #047857; font-size: 14px; font-weight: bold; color: #047857; padding-top: 9px; }
-        .footer { margin-top: 34px; border-top: 1px solid #e2e8f0; padding-top: 16px; width: 100%; }
+        .totals .grand td { border-top: 2px solid #3B5232; font-size: 14px; font-weight: bold; color: #3B5232; padding-top: 9px; }
+        .footer { margin-top: 34px; border-top: 1px solid #DCD0BC; padding-top: 16px; width: 100%; }
         .footer td { vertical-align: top; }
         .qr { text-align: right; }
         .qr img { width: 96px; height: 96px; }
         .badge {
             display: inline-block;
             padding: 2px 8px;
-            border-radius: 999px;
+            border-radius: 3px;
             font-size: 9px;
             font-weight: bold;
             letter-spacing: 0.5px;
@@ -127,7 +127,7 @@
         @if ((float) $order->discount > 0)
             <tr>
                 <td class="muted">Discount @if ($order->coupon_code) ({{ $order->coupon_code }}) @endif</td>
-                <td class="right" style="color: #047857;">−{{ number_format((float) $order->discount, 2) }} BDT</td>
+                <td class="right" style="color: #3B5232;">−{{ number_format((float) $order->discount, 2) }} BDT</td>
             </tr>
         @endif
         <tr>
@@ -144,7 +144,7 @@
         <tr>
             <td>
                 <span class="small muted">Placed {{ $order->placed_at->format('d M Y, h:i A') }}</span><br>
-                <span class="badge" style="margin-top: 6px; background: #ecfdf5; color: #047857;">
+                <span class="badge" style="margin-top: 6px; background: #E7EDDF; color: #3B5232;">
                     {{ $order->status->label() }}
                 </span>
             </td>

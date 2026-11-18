@@ -9,55 +9,229 @@
 @layer base {
     html {
         scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        background-color: theme('colors.paper.DEFAULT');
+        background-image:
+            radial-gradient(circle at 12% 8%, rgba(255, 252, 244, 0.9), transparent 55%),
+            radial-gradient(circle at 88% 92%, rgba(214, 196, 168, 0.35), transparent 60%);
+        color: theme('colors.ink.DEFAULT');
+    }
+
+    /* A whisper of press grain over the whole page, like ink on uncoated stock. */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.32;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: theme('fontFamily.display');
+        color: theme('colors.ink.DEFAULT');
+        letter-spacing: -0.015em;
+    }
+
+    ::selection {
+        background-color: theme('colors.ochre.200');
+        color: theme('colors.ink.DEFAULT');
+    }
+
+    :focus-visible {
+        outline: 2px solid theme('colors.forest.600');
+        outline-offset: 2px;
+    }
+
+    hr {
+        border-color: theme('colors.line.DEFAULT');
     }
 }
 
 @layer components {
     .card {
-        @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+        @apply rounded-lg border border-line bg-white shadow-sm;
+    }
+
+    .card-flat {
+        @apply rounded-lg border border-line bg-white;
+    }
+
+    .card-note {
+        @apply rounded-lg border border-line bg-paper-light p-5 shadow-sm;
+    }
+
+    .card-head {
+        @apply flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4;
     }
 
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-forest-900 bg-forest-700 px-4 py-2.5 text-xs font-bold uppercase tracking-label text-white shadow-sm transition duration-150 hover:-translate-y-px hover:bg-forest-800 hover:shadow-md active:translate-y-0 active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0;
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-ink bg-transparent px-4 py-2.5 text-xs font-bold uppercase tracking-label text-ink shadow-sm transition duration-150 hover:-translate-y-px hover:bg-paper-light hover:shadow-md active:translate-y-0 active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .btn-danger {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2;
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-clay-700 bg-clay-50 px-4 py-2.5 text-xs font-bold uppercase tracking-label text-clay-700 transition hover:bg-clay-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-2;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-ink-soft transition hover:bg-paper-deep/60 hover:text-ink;
     }
 
     .label {
-        @apply block text-sm font-medium text-slate-700;
+        @apply block font-mono text-[11px] font-bold uppercase tracking-label text-ink-soft;
     }
 
     .input {
-        @apply block w-full rounded-xl border-slate-300 bg-white text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:ring-emerald-500;
+        @apply block w-full rounded-md border-line bg-white px-3 py-2.5 text-[15px] text-ink shadow-inner placeholder:text-ink-faint focus:border-forest-600 focus:ring-1 focus:ring-forest-600;
+    }
+
+    .input-quiet {
+        @apply block w-full border-0 border-b border-ink/30 bg-transparent px-1 py-2 text-[15px] text-ink placeholder:text-ink-faint focus:border-forest-700 focus:ring-0;
     }
 
     .field-error {
-        @apply mt-1 text-sm text-rose-600;
-    }
-
-    .table-base {
-        @apply min-w-full divide-y divide-slate-200 text-sm;
-    }
-
-    .table-base thead th {
-        @apply bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500;
-    }
-
-    .table-base tbody {
-        @apply divide-y divide-slate-100 bg-white;
-    }
-
-    .table-base tbody td {
-        @apply px-4 py-4 align-middle text-slate-700;
+        @apply mt-1 font-mono text-xs text-clay-600;
     }
 
     .link {
-        @apply font-medium text-emerald-700 underline-offset-4 hover:underline;
+        @apply font-semibold text-clay-600 underline decoration-clay-500/40 decoration-2 underline-offset-4 hover:text-forest-700 hover:decoration-forest-600;
     }
+
+    .eyebrow {
+        @apply font-mono text-[10px] font-bold uppercase tracking-[0.24em] text-clay-600;
+    }
+
+    .table-base {
+        @apply min-w-full divide-y divide-line text-sm;
+    }
+
+    .table-base thead th {
+        @apply border-b border-line bg-paper-deep/70 px-4 py-3 text-left font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft;
+    }
+
+    .table-base tbody {
+        @apply divide-y divide-line/70 bg-white;
+    }
+
+    .table-base tbody td {
+        @apply px-4 py-4 align-middle text-ink;
+    }
+
+    .table-base tbody tr:hover {
+        @apply bg-paper-light/70;
+    }
+
+    .tag {
+        @apply inline-flex items-center gap-1 rounded-sm border border-line-dark bg-paper-light px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-label text-ink-soft;
+    }
+
+    .stamp {
+        @apply inline-flex items-center justify-center rounded-sm border-2 border-clay-600/70 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-clay-700;
+        transform: rotate(-2deg);
+        box-shadow: inset 0 0 0 2px rgba(169, 84, 47, 0.18);
+    }
+
+    .stamp-green {
+        @apply border-forest-700/60 text-forest-700;
+        box-shadow: inset 0 0 0 2px rgba(59, 82, 50, 0.16);
+    }
+
+    .tape {
+        position: absolute;
+        width: 5.5rem;
+        height: 1.6rem;
+        background: rgba(232, 213, 176, 0.72);
+        border-left: 1px dashed rgba(120, 96, 62, 0.28);
+        border-right: 1px dashed rgba(120, 96, 62, 0.28);
+        box-shadow: 0 1px 1px rgba(58, 45, 30, 0.12);
+        opacity: 0.9;
+    }
+
+    .hand {
+        font-family: theme('fontFamily.hand');
+        letter-spacing: 0.01em;
+    }
+
+    .rule-dotted {
+        border-top: 1.5px dashed theme('colors.line.dark');
+    }
+
+    .frame-photo {
+        @apply border-[6px] border-white shadow-lg;
+    }
+
+    .nav-link {
+        @apply relative inline-flex items-center py-1 font-mono text-[11px] font-bold uppercase tracking-label text-ink-soft transition hover:text-ink;
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -4px;
+        height: 2px;
+        background-color: theme('colors.clay.500');
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 150ms ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link[aria-current='page']::after {
+        transform: scaleX(1);
+    }
+
+    .nav-link[aria-current='page'] {
+        color: theme('colors.ink.DEFAULT');
+    }
+
+    .ledger-grid {
+        background-image:
+            linear-gradient(to right, rgba(90, 72, 48, 0.06) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(90, 72, 48, 0.06) 1px, transparent 1px);
+        background-size: 28px 28px;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .text-pretty {
+        text-wrap: pretty;
+    }
+
+    .rotate-slight {
+        transform: rotate(-1.2deg);
+    }
+
+    .rotate-slight-r {
+        transform: rotate(1.2deg);
+    }
+
+    .bg-grain {
+        background-image:
+            radial-gradient(rgba(90, 72, 48, 0.12) 0.6px, transparent 0.6px);
+        background-size: 7px 7px;
+    }
+}
+
+/* Native pagination styled like a printed index. */
+.pagination svg {
+    width: 0.9rem;
+    height: 0.9rem;
 }
