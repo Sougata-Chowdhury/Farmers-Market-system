@@ -4,7 +4,7 @@
 
 Farmers Market is a portfolio-ready rewrite of a legacy farming inventory application. It turns a basic catalogue into a complete multi-role marketplace where customers discover fresh produce, farmers manage their storefronts, and admins operate the platform. The interface now follows a warm market-ledger direction: paper textures, ink-like borders, taped notes, hand-drawn accents and practical dashboard layouts instead of a generic polished SaaS aesthetic.
 
-![Farmers Market home page showing the warm paper-and-ink market-ledger design](docs/screenshots/home.png)
+![Farmers Market home page showing the warm paper-and-ink market-ledger design](docs/screenshots/market-home.png)
 
 [![Laravel](https://img.shields.io/badge/Laravel-12-ff2d20?logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4?logo=php&logoColor=white)](https://www.php.net)
@@ -15,15 +15,15 @@ Farmers Market is a portfolio-ready rewrite of a legacy farming inventory applic
 
 | Market storefront | Product detail with a real matching produce image |
 | --- | --- |
-| ![Market storefront](docs/screenshots/home.png) | ![Product detail](docs/screenshots/product.png) |
+| ![Market storefront](docs/screenshots/market-home.png) | ![Product detail](docs/screenshots/product-ledger.png) |
 
 | Customer order ledger | Farmer sales ledger |
 | --- | --- |
-| ![Customer order ledger](docs/screenshots/customer-orders.png) | ![Farmer sales ledger](docs/screenshots/farmer-dashboard.png) |
+| ![Customer order ledger](docs/screenshots/customer-orders-ledger.png) | ![Farmer sales ledger](docs/screenshots/farmer-ledger.png) |
 
 | Admin market office | Sign in |
 | --- | --- |
-| ![Admin market office dashboard](docs/screenshots/admin-dashboard.png) | ![Farmers Market sign in](docs/screenshots/login.png) |
+| ![Admin market office dashboard](docs/screenshots/admin-office.png) | ![Farmers Market sign in](docs/screenshots/market-signin.png) |
 
 ## What is included
 
